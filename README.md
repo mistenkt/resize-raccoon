@@ -10,8 +10,6 @@
 
 - **Automatic Window Resizing**: Set your preferred window dimensions and let Resize Raccoon do the rest.
 - **Custom Profiles**: Create profiles for different applications and scenarios.
-- **Easy to Use**: Intuitive interface with no steep learning curve.
-- **Cross-Platform**: Works on Windows, macOS, and Linux.
 
 
 [![Thumbnail description](./public/home-screenshot-thumb.png)](./public/home-screenshot.png)
