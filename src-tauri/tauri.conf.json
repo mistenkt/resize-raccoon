@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "Resize Raccoon",
-    "version": "0.0.1"
+    "version": "1.0.0"
   },
   "tauri": {
     "allowlist": {
@@ -42,6 +42,9 @@
         "icons/128x128@2x.png",
         "icons/icon.icns",
         "icons/icon.ico"
+      ],
+      "resources": [
+        "../public/fonts/*.woff2"
       ]
     },
     "security": {
