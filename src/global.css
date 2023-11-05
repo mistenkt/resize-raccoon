@@ -1,0 +1,81 @@
+/* src/index.css */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* noto-sans-javanese-regular - latin */
+@font-face {
+    font-display: swap;
+    /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Noto Sans Javanese';
+    font-style: normal;
+    font-weight: 400;
+    src: url('./fonts/noto-sans-javanese-v23-latin-regular.woff2') format('woff2');
+    /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* noto-sans-javanese-500 - latin */
+@font-face {
+    font-display: swap;
+    /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Noto Sans Javanese';
+    font-style: normal;
+    font-weight: 500;
+    src: url('./fonts/noto-sans-javanese-v23-latin-500.woff2') format('woff2');
+    /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* noto-sans-javanese-600 - latin */
+@font-face {
+    font-display: swap;
+    /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Noto Sans Javanese';
+    font-style: normal;
+    font-weight: 600;
+    src: url('./fonts/noto-sans-javanese-v23-latin-600.woff2') format('woff2');
+    /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* noto-sans-javanese-700 - latin */
+@font-face {
+    font-display: swap;
+    /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Noto Sans Javanese';
+    font-style: normal;
+    font-weight: 700;
+    src: url('./fonts/noto-sans-javanese-v23-latin-700.woff2') format('woff2');
+    /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    overflow: hidden;
+}
+
+@media (min-width: 1111px) {
+    .home-screen-grid {
+        grid-template-columns: 500px 1fr;
+    }
+}
+
+.settings-drawer {
+    position: relative;
+    transition: transform 0.2s ease-in-out;
+}
+
+.settings-drawer.sidebar-open {
+    transform: translateX(250px);
+}
+
+.settings-drawer .sidebar {
+    width: 250px;
+    left: -250px;
+    position: absolute;
+    top: 0;
+    height: 100%;
+}

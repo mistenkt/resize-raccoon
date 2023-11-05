@@ -1,0 +1,29 @@
+[package]
+name = "resize-raccoon"
+version = "1.0.0"
+description = "Resize Raccoon"
+authors = ["mistenkt"]
+license = ""
+repository = ""
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+tauri-build = { version = "1.5", features = [] }
+
+[dependencies]
+tauri = { version = "1.5", features = [ "notification-all", "dialog-all", "system-tray", "app-all", "shell-open"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sysinfo = "0.29.10"
+winapi = { version = "0.3.9", features = ["winuser"] }
+image = "0.24.7"
+base64 = "0.21.5"
+uuid = { version = "1.5.0", features = ["v4", "serde"] }
+chrono = "0.4.31"
+
+[features]
+# this feature is used for production builds or when `devPath` points to the filesystem
+# DO NOT REMOVE!!
+custom-protocol = ["tauri/custom-protocol"]
