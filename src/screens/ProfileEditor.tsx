@@ -45,7 +45,7 @@ const ProfileEditor = ({ onCancel, onSaved, profile }: Props) => {
         windowHeight: Number(windowHeight),
         windowPosX: Number(windowPosX),
         windowPosY: Number(windowPosY),
-        delay: Number(delay),
+        delay: Number(delay) || 0,
         auto: autoResize,
     });
 

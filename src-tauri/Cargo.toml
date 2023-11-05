@@ -1,6 +1,6 @@
 [package]
 name = "resize-raccoon"
-version = "1.0.0"
+version = "1.0.1"
 description = "Resize Raccoon"
 authors = ["mistenkt"]
 license = ""

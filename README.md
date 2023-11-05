@@ -13,6 +13,10 @@
 - **Easy to Use**: Intuitive interface with no steep learning curve.
 - **Cross-Platform**: Works on Windows, macOS, and Linux.
 
+
+[![Thumbnail description](./public/home-screenshot-thumb.png)](./public/home-screenshot.png)
+[![Thumbnail description](./public/profile-screenshot-thumb.png)](./public/profile-screenshot.png)
+
 ## Installing
 
 To install Resize Raccoon, head over to the [Releases](https://github.com/mistenkt/resize-raccoon/releases) section and download the latest version for your operating system.

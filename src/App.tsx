@@ -38,6 +38,7 @@ function App() {
     }, [settings, initialized])
 
     const handleNewProfile = () => {
+        setEditProfile(undefined);
         setScreen(Screen.PROFILE_EDITOR);
     }
 

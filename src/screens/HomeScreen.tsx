@@ -49,7 +49,7 @@ const HomeScreen = ({ onEditProfile, onNewProfile, version, settings, updateSett
                             <div className="version-info flex justify-center gap-1">
                                 <div><span className="lowercase">v</span>{version}</div>
                                 <div>•</div>
-                                <a className="link" target="_blank" href="https://github.com/mistenkt">Homepage</a>
+                                <a className="link" target="_blank" href="https://github.com/mistenkt/resize-raccoon">Homepage</a>
                             </div>
                         </div>
                         <div className="divider w-20 self-center mt-2 mb-2"/>
