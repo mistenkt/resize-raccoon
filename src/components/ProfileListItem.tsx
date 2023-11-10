@@ -1,45 +1,71 @@
-import styled from "@emotion/styled";
-import { Profile } from "../types/ProfileTypes";
-import { Maximize, Settings } from "react-feather";
+import styled from '@emotion/styled';
+import { Profile } from '../types/ProfileTypes';
+import { Maximize, Settings } from 'react-feather';
+import { useState } from 'react';
+import backend from '../utils/backend';
+import { setScreen } from '../state/screenState';
+import { Screen } from '../types/ScreenTypes';
+import { useTranslation } from '../utils/i18n/useTranslation';
 
 interface Props {
     profile: Profile;
-    onEdit: (profile: Profile) => void;
-    onResize: (profile: Profile) => void;
 }
 
-const ProfileListItem = ({profile, onResize, onEdit}: Props) => {
+const ProfileListItem = ({ profile }: Props) => {
+    const t = useTranslation();
+    const [loading, setLoading] = useState(false);
+
+    const handleResize = () => {
+        setLoading(true);
+        backend.profile.apply(profile).finally(() => setLoading(false));
+    };
+
+    const handleEditProfile = () => {
+        setScreen(Screen.PROFILE_EDITOR, { profile });
+    };
+
     return (
         <Component className="card card-compact shadow-xl bg-base-100 mb-2">
             <div className="card-body gap-y-0">
                 <div className="row">
                     <div className="label text-lg p-0">{profile.name}</div>
                     <div className="actions gap-1">
-                        
-                        <button onClick={() => onResize(profile)}>
-                            <Maximize size={16}/>
+                        <button
+                            disabled={loading}
+                            className="btn btn-ghost btn-square btn-sm"
+                            onClick={handleResize}
+                        >
+                            {loading ? (
+                                <span className="loading loading-spinner w-4" />
+                            ) : (
+                                <Maximize size={16} />
+                            )}
                         </button>
-                        <button onClick={() => onEdit(profile)}>
-                            <Settings size={16}/>
+                        <button
+                            className="btn btn-ghost btn-square btn-sm"
+                            onClick={handleEditProfile}
+                        >
+                            <Settings size={16} />
                         </button>
                     </div>
                 </div>
                 <div className="meta text-2xs uppercase font-bold text-gray-600">
-                    <span>{profile.auto ? 'automatic' : 'manual'}</span>
+                    <span>
+                        {profile.auto
+                            ? t('profile.autoResize.enabled')
+                            : t('profile.autoResize.disabled')}
+                    </span>
                     <span>w: {profile.windowWidth}</span>
                     <span>h: {profile.windowHeight}</span>
                     <span>x: {profile.windowPosX}</span>
                     <span>y: {profile.windowPosY}</span>
                 </div>
             </div>
-            
-            
         </Component>
-    )
-}
+    );
+};
 
 const Component = styled.div`
-
     .row {
         display: flex;
         flex-direction: row;
@@ -68,21 +94,6 @@ const Component = styled.div`
     .actions {
         display: flex;
         align-items: center;
-
-        button {
-            all: unset;
-            width: 24px;
-            height: 24px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-
-            &:hover svg {
-                transform: scale(1.2);
-                transition: all 0.2s ease;
-            }
-        }
     }
 `;
 

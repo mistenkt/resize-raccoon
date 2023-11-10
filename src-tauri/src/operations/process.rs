@@ -52,12 +52,9 @@ pub fn get_process_list() -> Vec<ProcessInfo> {
 }
 
 pub fn get_pid_from_profile(profile: &Profile) -> Option<u32> {
-    let mut system = System::new_all();
-    system.refresh_all();
-
-    system.processes().values()
-        .find(|p| p.name().to_lowercase() == profile.process_name.to_lowercase())
-        .map(|p| p.pid().as_u32())
+    get_process_list().iter()
+        .find(|p| p.name.to_lowercase() == profile.process_name.to_lowercase())
+        .map(|p| p.pid as u32)
 }
 
 
@@ -140,14 +137,14 @@ pub fn watcher(watcher_flag: Arc<AtomicBool>, poll_rate_flag: Arc<AtomicU64>, pr
             if debug {
                 let now = chrono::Local::now();
                 // Print the timestamp in "HH:mm:ss" format
-                println!("Watching {}", now.format("%H:%M:%S"));
+                //println!("Watching {}", now.format("%H:%M:%S"));
             }
            
         } else {
             if debug {
                 let now = chrono::Local::now();
                 // Print the timestamp in "HH:mm:ss" format
-                println!("Watcher is on standby. {}", now.format("%H:%M:%S"));
+                //println!("Watcher is on standby. {}", now.format("%H:%M:%S"));
             }
         }
 

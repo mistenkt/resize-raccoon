@@ -3,6 +3,42 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+@layer components {
+    @keyframes slide-up {
+        0% {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+
+        100% {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slide-down {
+        0% {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        100% {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+    }
+}
+
+@layer utilities {
+    .animate-slide-up {
+        animation: slide-up 0.3s forwards;
+    }
+
+    .animate-slide-down {
+        animation: slide-down 0.3s forwards;
+    }
+}
+
 /* noto-sans-javanese-regular - latin */
 @font-face {
     font-display: swap;
@@ -10,7 +46,8 @@
     font-family: 'Noto Sans Javanese';
     font-style: normal;
     font-weight: 400;
-    src: url('$fonts/noto-sans-javanese-v23-latin-regular.woff2') format('woff2');
+    src: url('$fonts/noto-sans-javanese-v23-latin-regular.woff2')
+        format('woff2');
     /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
 }
 
@@ -78,4 +115,43 @@ body {
     position: absolute;
     top: 0;
     height: 100%;
+}
+
+@keyframes slide-in {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes slide-out {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(4rem); /* Change as needed */
+    }
+}
+
+.toast-system .alert {
+    transition: all .2s ease;
+}
+
+.toast-system .alert.slide-in {
+    opacity: 1;
+    transform: translateY(0);
+    animation: slide-in 0.5s ease forwards;
+}
+
+.toast-system .alert.slide-out {
+    animation: slide-out 0.5s ease forwards;
+}
+
+.toast-system.removing .alert:nth-child(2) {
+    transform: translateY(0) scale(1);
+    opacity: 1;
 }

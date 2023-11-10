@@ -16,10 +16,12 @@ mod setup {
 }
 
 mod commands;
+mod errors;
+
 use crate::operations::{profile, process, user_settings, window_manager};
 
 fn main() {
-    let debug = false;
+    let debug = true;
 
     let builder = tauri::Builder::default();
     let builder = commands::register_commands(builder);

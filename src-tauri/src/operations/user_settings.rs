@@ -9,13 +9,15 @@ use tauri::api::path;
 pub struct UserSettings {
     pub process_watcher_enabled: bool,
     pub poll_rate: u64,
+    pub check_for_updates: bool,
 }
 
 impl Default for UserSettings {
     fn default() -> Self {
         UserSettings {
             process_watcher_enabled: false,
-            poll_rate: 1000
+            poll_rate: 1000,
+            check_for_updates: true,
         }
     }
 }

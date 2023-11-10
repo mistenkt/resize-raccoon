@@ -7,7 +7,7 @@ use tauri::api::path;
 use tauri::{AppHandle, Manager, Runtime};
 
 use crate::setup::state::AppState;
-
+use crate::errors::profile::Error as ProfileError;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(default)]
@@ -39,30 +39,28 @@ impl Default for Profile {
     }
 }
 
-pub fn get_profiles_path<R: Runtime>(app_handle: &AppHandle<R>) -> Result<PathBuf, String> {
+pub fn get_profiles_path<R: Runtime>(app_handle: &AppHandle<R>) -> Result<PathBuf, ProfileError> {
     let settings_path = path::app_data_dir(&app_handle.config())
-    .ok_or_else(|| "Could not find the app data directory.".to_string())?;
+    .ok_or(ProfileError::ProfilePathError)?;
 
     if !settings_path.exists() {
-        fs::create_dir_all(&settings_path).map_err(|e| e.to_string())?;
+        fs::create_dir_all(&settings_path)?;
     }
 
     Ok(settings_path.join("profiles.json"))
 }
 
-pub fn load_profiles<R: Runtime>(app_handle: &AppHandle<R>) -> Result<Vec<Profile>, String> {
-    let profiles_json = fs::read_to_string(get_profiles_path(app_handle)?)
-        .map_err(|e| e.to_string())?;
-    serde_json::from_str(&profiles_json)
-        .map_err(|e| e.to_string())
+pub fn load_profiles<R: Runtime>(app_handle: &AppHandle<R>) -> Result<Vec<Profile>, ProfileError> {
+    let profile_path = get_profiles_path(app_handle)?;
+    let profiles_json = fs::read_to_string(profile_path)?;
+    serde_json::from_str(&profiles_json).map_err(Into::into)
 }
 
-fn save_profiles_to_disk<R: Runtime>(profiles: &Vec<Profile>, app_handle: &AppHandle<R>) -> Result<(), String> {
-    let json_string: String = serde_json::to_string_pretty(&profiles)
-        .map_err(|e| e.to_string())?;
+fn save_profiles_to_disk<R: Runtime>(profiles: &Vec<Profile>, app_handle: &AppHandle<R>) -> Result<(), ProfileError> {
+    let json_string: String = serde_json::to_string_pretty(&profiles)?;
+    let profiles_path = get_profiles_path(app_handle)?;
 
-    fs::write(get_profiles_path(app_handle)?, json_string)
-        .map_err(|e| e.to_string())
+    fs::write(profiles_path, json_string).map_err(Into::into)
 }
 
 fn update_profiles_state<R: Runtime>(profiles: Vec<Profile>, app_handle: &AppHandle<R>) {
@@ -75,7 +73,7 @@ fn update_profiles_state<R: Runtime>(profiles: Vec<Profile>, app_handle: &AppHan
     } // Lock is automatically released here
 }
 
-pub fn add_profile<R: Runtime>(profile: Profile, app: &AppHandle<R>) -> Result<(), String> {
+pub fn add_profile<R: Runtime>(profile: Profile, app: &AppHandle<R>) -> Result<(), ProfileError> {
     let mut profiles = load_profiles(app)?;
     profiles.push(profile);
 
@@ -85,10 +83,10 @@ pub fn add_profile<R: Runtime>(profile: Profile, app: &AppHandle<R>) -> Result<(
     Ok(())
 }
 
-pub fn update_profile<R: Runtime>(profile: Profile, app: &AppHandle<R>) -> Result<(), String> {
+pub fn update_profile<R: Runtime>(profile: Profile, app: &AppHandle<R>) -> Result<(), ProfileError> {
     let mut profiles = load_profiles(app)?;
     let index = profiles.iter().position(|p| p.uuid == profile.uuid)
-        .ok_or_else(|| "Could not find profile with given UUID.".to_string())?;
+        .ok_or(ProfileError::NotFound)?;
     profiles[index] = profile;
 
     save_profiles_to_disk(&profiles, app)?;
@@ -97,10 +95,10 @@ pub fn update_profile<R: Runtime>(profile: Profile, app: &AppHandle<R>) -> Resul
     Ok(())
 }
 
-pub fn delete_profile<R: Runtime>(profile: Profile, app: &AppHandle<R>) -> Result<(), String> {
+pub fn delete_profile<R: Runtime>(profile: Profile, app: &AppHandle<R>) -> Result<(), ProfileError> {
     let mut profiles = load_profiles(app)?;
     let index = profiles.iter().position(|p| p.uuid == profile.uuid)
-        .ok_or_else(|| "Could not find profile with given UUID.".to_string())?;
+        .ok_or(ProfileError::NotFound)?;
     profiles.remove(index);
 
     save_profiles_to_disk(&profiles, app)?;
