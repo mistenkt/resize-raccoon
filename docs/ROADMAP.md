@@ -1,13 +1,12 @@
 # Resize Raccoon Roadmap
 
 Quick overview over features i plan to implement
-
+|
 ## Current Status
-- Current version: `v1.1.0`
+- Current version: `v1.2.0`
 - [View Changelog](./CHANGELOG.md)
 
-### Upcoming Version: `v1.2.0`
-- **IPC**: Add the ability to apply profiles from external applications / scripts (manually trigger your profiles from a StreamDeck or other places)
+### Very soon™
 - **Global resize delay**: Adding a global resize delay setting that will affect all processes.
 - **Bug Fixes**: List any known bugs that will be addressed.
 

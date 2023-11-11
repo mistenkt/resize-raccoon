@@ -13,17 +13,19 @@ mod setup {
     pub mod init;
     pub mod state;
     pub mod tray;
+    pub mod ipc;
 }
 
 mod commands;
 mod errors;
+
 
 mod debug_utils;
 
 use crate::operations::{process, profile, user_settings, window_manager};
 
 fn main() {
-    dotenvy::dotenv().expect(".env file not found");
+    dotenvy::dotenv().ok();
 
     let builder = tauri::Builder::default();
     let builder = commands::register_commands(builder);

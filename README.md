@@ -11,6 +11,7 @@
 - **Automatic Window Resizing**: Set your preferred window dimensions and let Resize Raccoon do the rest.
 - **Accessible Profiles**: Create profiles for different applications and scenarios.
 - **Match profile to process once**: After defining a profile you dont need to match it to the process again, manually trigger the preset with a single click as long as the target program is running
+- **Apply profiles from external applications/shortcuts**: Trigger your profiles from your stream deck or whatever
 
 
 [![Thumbnail description](./public/home-screenshot-thumb.png)](./public/home-screenshot.png)
@@ -41,6 +42,11 @@ After installing Resize Raccoon, you can create custom profiles for your applica
 4. For the automatic resize to work, you need to enable process watching on the home screen.
 5. Minimize to system tray and dont worry about having to resize your applications manually everytime you launch them again. 
 6. Polling interval can be ajusted in the sidebar. It is set to 1000ms by deafult, in my testing it was very resource friendly so it shouldnt be problem.
+
+### Triggering from StreamDeck
+As long as the application is running you can trigger profiles from a .bat file or just from cmd directly using `echo apply-profile {profileName} > \\.pipe\resize-raccoon`. If your profile name contains spaces please wrap it in quites `echo apply-profile "my profile" > \\.pipe\resize-raccoon`
+
+For triggering profiles with stream deck you can either create a .bat file containting the command, or install the streamdeck-commandline plugin found here [mikepowell/streamdeck-commandline](https://github.com/mikepowell/streamdeck-commandline).
 
 NB. There could be cases where the process you are trying to resize wont allow you unless you run `ResizeRaccoon` as admin.
 

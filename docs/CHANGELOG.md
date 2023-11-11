@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.2.0] - 2023-11-12
+#### Added
+- Apply profiles from scripts or external programs using IPC.
+    > As long as the application is running you can trigger profiles from a .bat file or just from cmd directly using `echo apply-profile {profileName} > \\.pipe\resize-raccoon`. If your profile name contains spaces please wrap it in quites `echo apply-profile "my profile" > \\.pipe\resize-raccoon`
+
 ## [1.1.0] - 2023-11-11
 #### Added
 - Error toasts

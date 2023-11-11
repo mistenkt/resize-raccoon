@@ -1997,6 +1997,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "miow"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "359f76430b20a79f9e20e115b3428614e654f04fab314482fc0fda0ebd3c6044"
+dependencies = [
+ "windows-sys 0.48.0",
+]
+
+[[package]]
 name = "ndk"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2766,12 +2775,14 @@ checksum = "c08c74e62047bb2de4ff487b251e4a92e24f48745648451635cec7d591162d9f"
 
 [[package]]
 name = "resize-raccoon"
-version = "1.1.0"
+version = "1.2.0"
 dependencies = [
  "base64 0.21.5",
  "chrono",
  "dotenvy",
  "image",
+ "miow",
+ "regex",
  "serde",
  "serde_json",
  "sysinfo",

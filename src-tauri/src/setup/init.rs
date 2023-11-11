@@ -8,6 +8,7 @@ use crate::operations::{
     process, profile,
     user_settings::{self, UserSettings},
 };
+use crate::setup::ipc;
 use crate::setup::state::AppState;
 use tauri::{Builder, Manager, Runtime};
 
@@ -38,8 +39,16 @@ pub fn setup<R: Runtime>(builder: Builder<R>) -> Builder<R> {
         };
         app.manage(app_state);
 
+        let profiles_clone = profiles.clone();
+
         std::thread::spawn(move || {
-            process::watcher(watcher_flag.clone(), poll_rate_flag.clone(), profiles);
+            process::watcher(watcher_flag.clone(), poll_rate_flag.clone(), profiles_clone);
+        });
+
+        let profiles_clone = profiles.clone();
+
+        std::thread::spawn(move || {
+            ipc::listener(profiles_clone);
         });
 
         Ok(())

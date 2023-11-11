@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "Resize Raccoon",
-    "version": "1.1.0"
+    "version": "1.2.0"
   },
   "tauri": {
     "allowlist": {
@@ -34,7 +34,7 @@
     },
     "bundle": {
       "active": true,
-      "targets": "msi",
+      "targets": ["msi", "app"],
       "identifier": "com.resizeraccoon.dev",
       "icon": [
         "icons/32x32.png",
