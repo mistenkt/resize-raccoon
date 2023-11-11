@@ -83,4 +83,3 @@ pub mod profile {
         ProfilePathError("profile_path_error", "Could not find the profile path."),
     });
 }
-

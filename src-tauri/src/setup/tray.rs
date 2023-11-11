@@ -1,8 +1,10 @@
-use tauri::{Runtime, Builder, SystemTray, SystemTrayMenu, SystemTrayMenuItem, CustomMenuItem, SystemTrayEvent, Manager};
+use tauri::{
+    Builder, CustomMenuItem, Manager, Runtime, SystemTray, SystemTrayEvent, SystemTrayMenu,
+    SystemTrayMenuItem,
+};
 
 pub fn setup_tray<R: Runtime>(builder: Builder<R>) -> Builder<R> {
-    let system_tray = SystemTray::new()
-    .with_menu(
+    let system_tray = SystemTray::new().with_menu(
         SystemTrayMenu::new()
             .add_item(CustomMenuItem::new("show", "Show"))
             .add_native_item(SystemTrayMenuItem::Separator)
@@ -21,17 +23,17 @@ pub fn setup_tray<R: Runtime>(builder: Builder<R>) -> Builder<R> {
                     window.unminimize().unwrap();
                     window.set_focus().unwrap();
                 }
-            },
+            }
             SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
                 "show" => {
                     let window = app.get_window("main").unwrap();
                     window.show().unwrap();
                     window.unminimize().unwrap();
                     window.set_focus().unwrap();
-                },
+                }
                 "exit" => {
                     app.exit(0);
-                },
+                }
                 _ => {}
             },
             _ => {}

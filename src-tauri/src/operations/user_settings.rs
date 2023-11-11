@@ -1,8 +1,8 @@
-use std::path::PathBuf;
+use serde::{Deserialize, Serialize};
 use std::fs;
-use serde::{Serialize, Deserialize};
-use tauri::{AppHandle, Runtime};
+use std::path::PathBuf;
 use tauri::api::path;
+use tauri::{AppHandle, Runtime};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(default)]
@@ -24,7 +24,7 @@ impl Default for UserSettings {
 
 pub fn get_user_settings_path<R: Runtime>(app_handle: &AppHandle<R>) -> Result<PathBuf, String> {
     let settings_path = path::app_data_dir(&app_handle.config())
-    .ok_or_else(|| "Could not find the app data directory.".to_string())?;
+        .ok_or_else(|| "Could not find the app data directory.".to_string())?;
 
     if !settings_path.exists() {
         fs::create_dir_all(&settings_path).map_err(|e| e.to_string())?;
@@ -38,23 +38,23 @@ pub fn get_user_settings<R: Runtime>(app_handle: &AppHandle<R>) -> Result<UserSe
     let user_settings_path = get_user_settings_path(app_handle)?;
     if !user_settings_path.exists() {
         let user_settings = UserSettings::default();
-        let json_string: String = serde_json::to_string_pretty(&user_settings)
-            .map_err(|e| e.to_string())?;
-        fs::write(user_settings_path, json_string)
-            .map_err(|e| e.to_string())?;
+        let json_string: String =
+            serde_json::to_string_pretty(&user_settings).map_err(|e| e.to_string())?;
+        fs::write(user_settings_path, json_string).map_err(|e| e.to_string())?;
         Ok(user_settings)
     } else {
-        let user_settings_json = fs::read_to_string(user_settings_path)
-            .map_err(|e| e.to_string())?;
-        serde_json::from_str(&user_settings_json)
-            .map_err(|e| e.to_string())
+        let user_settings_json =
+            fs::read_to_string(user_settings_path).map_err(|e| e.to_string())?;
+        serde_json::from_str(&user_settings_json).map_err(|e| e.to_string())
     }
 }
 
-pub fn update_user_settings<R: Runtime>(user_settings: UserSettings, app_handle: &AppHandle<R>) -> Result<(), String> {
+pub fn update_user_settings<R: Runtime>(
+    user_settings: UserSettings,
+    app_handle: &AppHandle<R>,
+) -> Result<(), String> {
     let user_settings_path = get_user_settings_path(app_handle)?;
-    let json_string: String = serde_json::to_string_pretty(&user_settings)
-            .map_err(|e| e.to_string())?;
-        fs::write(user_settings_path, json_string)
-            .map_err(|e| e.to_string())
+    let json_string: String =
+        serde_json::to_string_pretty(&user_settings).map_err(|e| e.to_string())?;
+    fs::write(user_settings_path, json_string).map_err(|e| e.to_string())
 }

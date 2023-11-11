@@ -1,7 +1,7 @@
-use tauri::{Runtime, Builder, generate_handler};
+use tauri::{generate_handler, Builder, Runtime};
 
-pub mod profile_commands;
 pub mod process_commands;
+pub mod profile_commands;
 pub mod settings_commands;
 
 pub fn register_commands<R: Runtime>(builder: Builder<R>) -> Builder<R> {

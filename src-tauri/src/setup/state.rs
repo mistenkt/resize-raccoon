@@ -1,4 +1,7 @@
-use std::sync::{Arc, atomic::{AtomicBool, AtomicU64}, Mutex};
+use std::sync::{
+    atomic::{AtomicBool, AtomicU64},
+    Arc, Mutex,
+};
 
 use crate::profile::Profile;
 

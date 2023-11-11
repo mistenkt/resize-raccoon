@@ -1,26 +1,33 @@
-extern crate winapi;
 extern crate base64;
 extern crate image;
+extern crate winapi;
 
+use crate::debug_log;
+use crate::debug_log_level;
+use crate::debug_utils::DebugLevel;
 use crate::profile::Profile;
 use crate::window_manager;
-use winapi::um::winuser::{EnumWindows, GetWindowThreadProcessId, IsWindowVisible};
-use winapi::shared::minwindef::{DWORD, LPARAM};
+use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
+use std::fmt::Debug;
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
-use std::sync::atomic::{AtomicBool, Ordering, AtomicU64};
 use std::thread;
 use std::time::Duration;
-use sysinfo::{System, SystemExt, ProcessExt, PidExt};
-use serde::{Serialize, Deserialize};
+use sysinfo::{PidExt, ProcessExt, System, SystemExt};
+use winapi::shared::minwindef::{DWORD, LPARAM};
+use winapi::um::winuser::{EnumWindows, GetWindowThreadProcessId, IsWindowVisible};
 
 #[derive(Serialize, Deserialize)]
 pub struct ProcessInfo {
     name: String,
-    pid: usize
+    pid: usize,
 }
 
-extern "system" fn enum_windows_callback(hwnd: winapi::shared::windef::HWND, lparam: LPARAM) -> i32 {
+extern "system" fn enum_windows_callback(
+    hwnd: winapi::shared::windef::HWND,
+    lparam: LPARAM,
+) -> i32 {
     let mut process_id: DWORD = 0;
     unsafe {
         GetWindowThreadProcessId(hwnd, &mut process_id);
@@ -39,10 +46,15 @@ pub fn get_process_list() -> Vec<ProcessInfo> {
 
     let mut process_ids_with_windows: HashSet<usize> = HashSet::new();
     unsafe {
-        EnumWindows(Some(enum_windows_callback), &mut process_ids_with_windows as *mut _ as LPARAM);
+        EnumWindows(
+            Some(enum_windows_callback),
+            &mut process_ids_with_windows as *mut _ as LPARAM,
+        );
     }
 
-    system.processes().values()
+    system
+        .processes()
+        .values()
         .filter(|p| process_ids_with_windows.contains(&(p.pid().as_u32() as usize)))
         .map(|process| ProcessInfo {
             name: process.name().to_string(),
@@ -52,18 +64,22 @@ pub fn get_process_list() -> Vec<ProcessInfo> {
 }
 
 pub fn get_pid_from_profile(profile: &Profile) -> Option<u32> {
-    get_process_list().iter()
+    get_process_list()
+        .iter()
         .find(|p| p.name.to_lowercase() == profile.process_name.to_lowercase())
         .map(|p| p.pid as u32)
 }
 
+pub fn watcher(
+    watcher_flag: Arc<AtomicBool>,
+    poll_rate_flag: Arc<AtomicU64>,
+    profiles: Arc<Mutex<Vec<Profile>>>,
+) {
+    debug_log!(
+        "Initial watcher_flag state: {}",
+        watcher_flag.load(Ordering::SeqCst)
+    );
 
-
-pub fn watcher(watcher_flag: Arc<AtomicBool>, poll_rate_flag: Arc<AtomicU64>, profiles: Arc<Mutex<Vec<Profile>>>, debug: bool) {
-    if debug {
-        println!("Initial watcher_flag state: {}", watcher_flag.load(Ordering::SeqCst));
-    }
-   
     let mut applied_profiles: HashSet<u32> = HashSet::new();
     let mut system = System::new_all();
 
@@ -76,28 +92,25 @@ pub fn watcher(watcher_flag: Arc<AtomicBool>, poll_rate_flag: Arc<AtomicU64>, pr
             // Only use profiles that have auto enabled
             let profiles_guard = profiles.lock().unwrap();
 
-            let current_profiles: Vec<Profile> = profiles_guard.iter().filter(|p| p.auto).cloned().collect();
+            let current_profiles: Vec<Profile> =
+                profiles_guard.iter().filter(|p| p.auto).cloned().collect();
 
-            if debug {
-                println!("Current profiles: {:?}", current_profiles);
-            }
+            debug_log!("Current profiles: {:?}", current_profiles);
 
             drop(profiles_guard);
 
             for profile in current_profiles.iter() {
                 // find a matching process
-                let process = process_list.iter().find(|p| p.name().to_lowercase() == profile.process_name.to_lowercase());
+                let process = process_list
+                    .iter()
+                    .find(|p| p.name().to_lowercase() == profile.process_name.to_lowercase());
 
                 if process.is_none() {
-                    if debug {
-                        println!("Could not find process: {}", profile.process_name);
-                    }
+                    debug_log!("Could not find process: {}", profile.process_name);
                     continue;
                 }
 
-                if debug {
-                    println!("Found process: {:?}", process);
-                }
+                debug_log!("Found process: {:?}", process);
 
                 let process_pid = process.unwrap().pid().as_u32();
 
@@ -105,17 +118,19 @@ pub fn watcher(watcher_flag: Arc<AtomicBool>, poll_rate_flag: Arc<AtomicU64>, pr
                     continue;
                 }
 
-                if debug {
-                    println!("Scheduling profile application for {} in {} ms", process.unwrap().name(), profile.delay);
-                }
+                debug_log!(
+                    "Scheduling profile application for {} in {} ms",
+                    process.unwrap().name(),
+                    profile.delay
+                );
+
                 applied_profiles.insert(process_pid);
 
                 let profile_clone = profile.clone();
-                let debug_clone = debug.clone();
 
                 std::thread::spawn(move || {
                     std::thread::sleep(Duration::from_millis(profile_clone.delay as u64));
-                    window_manager::apply_profile(&profile_clone, Some(process_pid), debug_clone);
+                    window_manager::apply_profile(&profile_clone, Some(process_pid));
                 });
             }
 
@@ -123,7 +138,9 @@ pub fn watcher(watcher_flag: Arc<AtomicBool>, poll_rate_flag: Arc<AtomicU64>, pr
             let mut to_remove: Vec<u32> = Vec::new();
 
             for applied_profile in applied_profiles.iter() {
-                let process = process_list.iter().find(|p| p.pid().as_u32() == *applied_profile);
+                let process = process_list
+                    .iter()
+                    .find(|p| p.pid().as_u32() == *applied_profile);
 
                 if process.is_none() {
                     to_remove.push(*applied_profile);
@@ -134,18 +151,9 @@ pub fn watcher(watcher_flag: Arc<AtomicBool>, poll_rate_flag: Arc<AtomicU64>, pr
                 applied_profiles.remove(pid);
             }
 
-            if debug {
-                let now = chrono::Local::now();
-                // Print the timestamp in "HH:mm:ss" format
-                //println!("Watching {}", now.format("%H:%M:%S"));
-            }
-           
+            debug_log_level!(DebugLevel::Verbose,"Watching {}", chrono::Local::now().format("%H:%M:%S"));
         } else {
-            if debug {
-                let now = chrono::Local::now();
-                // Print the timestamp in "HH:mm:ss" format
-                //println!("Watcher is on standby. {}", now.format("%H:%M:%S"));
-            }
+            debug_log_level!(DebugLevel::Verbose, "Watcher is on standby. {}", chrono::Local::now().format("%H:%M:%S"));
         }
 
         // Sleep for a short duration before checking the flag again
