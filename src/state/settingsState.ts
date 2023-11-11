@@ -13,7 +13,7 @@ export const updateSettings = (updatedSettings: Partial<Settings>) => {
         ...updatedSettings
     }));
 
-    backend.settings.update(state.value).catch((e) => {
+    backend.settings.update(state.value).catch(() => {
         setSettings(oldSettings);
     });
 }
