@@ -52,6 +52,14 @@ pub fn get_profiles_path<R: Runtime>(app_handle: &AppHandle<R>) -> Result<PathBu
 
 pub fn load_profiles<R: Runtime>(app_handle: &AppHandle<R>) -> Result<Vec<Profile>, ProfileError> {
     let profile_path = get_profiles_path(app_handle)?;
+
+    // If profiles doesnt exist we should create them with an empty object
+    if !profile_path.exists() {
+        let profiles: Vec<Profile> = vec![];
+        let json_string: String = serde_json::to_string_pretty(&profiles)?;
+        fs::write(&profile_path, json_string)?;
+    }
+
     let profiles_json = fs::read_to_string(profile_path)?;
     serde_json::from_str(&profiles_json).map_err(Into::into)
 }

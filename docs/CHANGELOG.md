@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.2.1] - 2023-11-16
+#### Fixed
+- Bug with default profiles file not being created after refactorign some code
+
 ## [1.2.0] - 2023-11-12
 #### Added
 - Apply profiles from scripts or external programs using IPC.
