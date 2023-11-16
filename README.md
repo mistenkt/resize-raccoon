@@ -48,6 +48,8 @@ As long as the application is running you can trigger profiles from a .bat file 
 
 For triggering profiles with stream deck you can either create a .bat file containting the command, or install the streamdeck-commandline plugin found here [mikepowell/streamdeck-commandline](https://github.com/mikepowell/streamdeck-commandline).
 
+[StreamDeck icon](./public/resize-raccoon-streamdeck.png)
+
 NB. There could be cases where the process you are trying to resize wont allow you unless you run `ResizeRaccoon` as admin.
 
 ## Running Locally
