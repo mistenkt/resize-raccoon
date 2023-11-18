@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0] - 2023-11-17
+#### Added
+- After applying profiles, the system now keeps an eye on the process for a short while to make sure the size/position is not being changed agian by the process it self. If it detects a change between the applied profile and the window, it will reapply it self.
+- If a process does not have an active window when applying the profile (like during load when the process hasnt had time to create its active window yet), we ill wait for 5 seconds and check to see if an active window has been created. There is a max of 2 retries for this. 
+- As a result of the two fixes above automatic resizing can now be enabled without any delays
+
+
 ## [1.2.2] - 2023-11-17
 #### Fixed
 - Fixed problem where the wrong child window of a process was selected for resizing. (should fix issues with WRC and ACC not always resizing. Process watcher is still a bit buggy so recommend manually triggering for now, or setting a delay long enough where you know you have had time get passed the intro and have activated the main window)

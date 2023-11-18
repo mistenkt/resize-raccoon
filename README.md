@@ -17,6 +17,8 @@
 [![Thumbnail description](./public/home-screenshot-thumb.png)](./public/home-screenshot.png)
 [![Thumbnail description](./public/profile-screenshot-thumb.png)](./public/profile-screenshot.png)
 
+Check the [ROADMAP.md](./docs/ROADMAP.md) for upcoming planned features.
+
 ## Installing
 
 To install Resize Raccoon, head over to the [Releases](https://github.com/mistenkt/resize-raccoon/releases) section and download the latest version for your operating system.
@@ -24,13 +26,6 @@ To install Resize Raccoon, head over to the [Releases](https://github.com/misten
 ## Usage
 
 After installing Resize Raccoon, you can create custom profiles for your applications:
-
-> #### NOTE: 
-> Some applications / games do a lot of fuckery with their window during startup that will prevent the resizing to take effect or persisting. 
-> - If manually applying the profile you should usually wait for the intros to finish and the main menu to appear. 
-> - If using process watcher you should set a delay long enough for the fuckery to end. (the amount of delay required varies, from none to 20-30 seconds (EA WRC 23))
-
-> Working on a better solution for this were no manual intervention or magic delay timers are needed. Check the [Roadmap](./docs/ROADMAP.md) for more info about upcoming feautures.
 
 1. Open the Resize Raccoon interface.
 2. Add a new profile by specifying the target application process, name, size and position and whatever else is there.
