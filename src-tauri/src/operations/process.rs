@@ -8,19 +8,21 @@ use crate::debug_utils::DebugLevel;
 use crate::profile::Profile;
 use crate::window_manager;
 use serde::{Deserialize, Serialize};
-use winapi::um::handleapi::CloseHandle;
-use winapi::um::minwinbase::STILL_ACTIVE;
-use winapi::um::processthreadsapi::GetExitCodeProcess;
-use winapi::um::processthreadsapi::OpenProcess;
-use winapi::um::winnt::PROCESS_QUERY_INFORMATION;
 use std::collections::HashSet;
 use std::fmt::Debug;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
+use sysinfo::ProcessRefreshKind;
+use sysinfo::RefreshKind;
 use sysinfo::{PidExt, ProcessExt, System, SystemExt};
 use winapi::shared::minwindef::{DWORD, LPARAM};
+use winapi::um::handleapi::CloseHandle;
+use winapi::um::minwinbase::STILL_ACTIVE;
+use winapi::um::processthreadsapi::GetExitCodeProcess;
+use winapi::um::processthreadsapi::OpenProcess;
+use winapi::um::winnt::PROCESS_QUERY_INFORMATION;
 use winapi::um::winuser::{EnumWindows, GetWindowThreadProcessId, IsWindowVisible};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -46,8 +48,8 @@ extern "system" fn enum_windows_callback(
 }
 
 pub fn get_process_list() -> Vec<ProcessInfo> {
-    let mut system = System::new_all();
-    system.refresh_all();
+    let system =
+        System::new_with_specifics(RefreshKind::new().with_processes(ProcessRefreshKind::new()));
 
     let mut process_ids_with_windows: HashSet<usize> = HashSet::new();
     unsafe {
@@ -86,12 +88,16 @@ pub fn watcher(
     );
 
     let mut applied_profiles: HashSet<u32> = HashSet::new();
-    let mut system = System::new_all();
+
+    let process_refresh_kind = ProcessRefreshKind::new();
+    let refresh_kind = RefreshKind::new().with_processes(process_refresh_kind);
+
+    let mut system = System::new_with_specifics(refresh_kind);
 
     loop {
         // Check the flag to see if we should perform the watching logic
         if watcher_flag.load(Ordering::SeqCst) {
-            system.refresh_all();
+            system.refresh_processes_specifics(process_refresh_kind);
             let process_list: Vec<_> = system.processes().values().collect();
 
             // Only use profiles that have auto enabled
@@ -100,7 +106,11 @@ pub fn watcher(
             let current_profiles: Vec<Profile> =
                 profiles_guard.iter().filter(|p| p.auto).cloned().collect();
 
-            debug_log_level!(DebugLevel::Verbose, "Current profiles: {:?}", current_profiles);
+            debug_log_level!(
+                DebugLevel::Verbose,
+                "Current profiles: {:?}",
+                current_profiles
+            );
 
             drop(profiles_guard);
 
@@ -111,11 +121,15 @@ pub fn watcher(
                     .find(|p| p.name().to_lowercase() == profile.process_name.to_lowercase());
 
                 if process.is_none() {
-                    debug_log_level!(DebugLevel::Verbose, "Could not find process: {}", profile.process_name);
+                    debug_log_level!(
+                        DebugLevel::Verbose,
+                        "Could not find process: {}",
+                        profile.process_name
+                    );
                     continue;
                 }
 
-                debug_log_level!(DebugLevel::Verbose,"Found process: {:?}", process);
+                debug_log_level!(DebugLevel::Verbose, "Found process: {:?}", process);
 
                 let process_pid = process.unwrap().pid().as_u32();
 
@@ -133,10 +147,18 @@ pub fn watcher(
 
                 let profile_clone = profile.clone();
 
-                thread::Builder::new().name("Process Watcher - Apply".to_string()).spawn(move || {
-                    std::thread::sleep(Duration::from_millis(profile_clone.delay as u64));
-                    let _ = window_manager::apply_profile(&profile_clone, Some(process_pid), true, Some(0));
-                }).unwrap();
+                thread::Builder::new()
+                    .name("Process Watcher - Apply".to_string())
+                    .spawn(move || {
+                        std::thread::sleep(Duration::from_millis(profile_clone.delay as u64));
+                        let _ = window_manager::apply_profile(
+                            &profile_clone,
+                            Some(process_pid),
+                            true,
+                            Some(0),
+                        );
+                    })
+                    .unwrap();
             }
 
             // Remove any potential applied profiles that are no longer running
@@ -156,9 +178,17 @@ pub fn watcher(
                 applied_profiles.remove(pid);
             }
 
-            debug_log_level!(DebugLevel::Verbose,"Watching {}", chrono::Local::now().format("%H:%M:%S"));
+            debug_log_level!(
+                DebugLevel::Verbose,
+                "Watching {}",
+                chrono::Local::now().format("%H:%M:%S")
+            );
         } else {
-            debug_log_level!(DebugLevel::Verbose, "Watcher is on standby. {}", chrono::Local::now().format("%H:%M:%S"));
+            debug_log_level!(
+                DebugLevel::Verbose,
+                "Watcher is on standby. {}",
+                chrono::Local::now().format("%H:%M:%S")
+            );
         }
 
         // Sleep for a short duration before checking the flag again
@@ -173,7 +203,7 @@ pub fn is_process_running(pid: DWORD) -> bool {
         let mut exit_code: DWORD = 0;
         let result = unsafe { GetExitCodeProcess(process_handle, &mut exit_code) };
         unsafe { CloseHandle(process_handle) };
-        
+
         result != 0 && exit_code == STILL_ACTIVE
     } else {
         false
