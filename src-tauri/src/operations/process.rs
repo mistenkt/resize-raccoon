@@ -18,7 +18,7 @@ use sysinfo::{PidExt, ProcessExt, System, SystemExt};
 use winapi::shared::minwindef::{DWORD, LPARAM};
 use winapi::um::winuser::{EnumWindows, GetWindowThreadProcessId, IsWindowVisible};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct ProcessInfo {
     name: String,
     pid: usize,

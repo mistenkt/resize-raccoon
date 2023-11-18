@@ -2775,7 +2775,7 @@ checksum = "c08c74e62047bb2de4ff487b251e4a92e24f48745648451635cec7d591162d9f"
 
 [[package]]
 name = "resize-raccoon"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "base64 0.21.5",
  "chrono",

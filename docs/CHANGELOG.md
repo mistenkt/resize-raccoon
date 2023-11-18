@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.2.2] - 2023-11-17
+#### Fixed
+- Fixed problem where the wrong child window of a process was selected for resizing. (should fix issues with WRC and ACC not always resizing. Process watcher is still a bit buggy so recommend manually triggering for now, or setting a delay long enough where you know you have had time get passed the intro and have activated the main window)
+
 ## [1.2.1] - 2023-11-16
 #### Fixed
 - Bug with default profiles file not being created after refactorign some code
