@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.4.0] - 2023-11-17
+#### Added
+- Massively improved performance of process watching. Like over 9000
+- Added auto update feature. Checks on launch with dialog.
+
+
 ## [1.3.0] - 2023-11-17
 #### Added
 - After applying profiles, the system now keeps an eye on the process for a short while to make sure the size/position is not being changed agian by the process it self. If it detects a change between the applied profile and the window, it will reapply it self.

@@ -1,11 +1,11 @@
 {
-    "version":  "1.2.3",
-    "notes":  "Testing  \nAnother line\nEvem more lines\n- list?\n- list list?",
-    "pub_date":  "2023-11-18T22:22:27Z",
-    "platforms":  {
-                      "windows-x86_64":  {
-                                             "signature":  "foosignature",
-                                             "url":  "https://github.com/mistenkt/resize-raccoon/releases/download/v1.2.3/Resize.Raccoon_1.2.3_x64_en-US.msi.zip"
-                                         }
-                  }
+    "version": "1.4.0",
+    "notes": "Massively improved performance of process watching. Like over 9000\n Added auto update feature",
+    "pub_date": "2023-11-18T22:22:27Z",
+    "platforms": {
+        "windows-x86_64": {
+            "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVReGtTUFBGM0lSYWVQYjUvL0ZnaDBnNGZMVThDa3FuSUQyUjc5WUVBOEowUmVpNmcwYUhXYklvVHVRUVpvRjM0V2JHYkJxRW1BVVBtYXBrYUNMZVoyOTMvMVVMQUcvUndrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzAwMzQzMTk4CWZpbGU6UmVzaXplIFJhY2Nvb25fMS40LjBfeDY0X2VuLVVTLm1zaS56aXAKa3VRRGs2QkQ0aXQyL3RSejc0QzYwajF0emYyOE51U1FwYzFKQTRNZHRJQUN6RXk0N2ljbkpQNmJPRXp0SEJYdHg3aCtlSDkwWEN5dlZSMEdlOWxWQ2c9PQo=",
+            "url": "https://github.com/mistenkt/resize-raccoon/releases/download/v1.4.0/Resize.Raccoon_1.4.0_x64_en-US.msi.zip"
+        }
+    }
 }
