@@ -135,7 +135,7 @@ pub fn watcher(
 
                 std::thread::spawn(move || {
                     std::thread::sleep(Duration::from_millis(profile_clone.delay as u64));
-                    window_manager::apply_profile(&profile_clone, Some(process_pid));
+                    let _ = window_manager::apply_profile(&profile_clone, Some(process_pid), true, Some(0));
                 });
             }
 

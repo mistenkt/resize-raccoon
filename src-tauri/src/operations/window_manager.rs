@@ -1,19 +1,19 @@
 use std::cell::RefCell;
-use std::ptr::{self, NonNull};
+use std::ptr::NonNull;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 use crate::debug_log;
 use crate::errors::window_manager::Error as WindowManagerError;
 use crate::profile::Profile;
 use crate::process::is_process_running;
-use winapi::shared::minwindef::{BOOL, DWORD, FALSE, LPARAM, LRESULT, TRUE, WPARAM};
+use winapi::shared::minwindef::{BOOL, DWORD, FALSE, LPARAM, TRUE};
 use winapi::shared::windef::{HWND, RECT};
 use winapi::um::errhandlingapi::GetLastError;
 use winapi::um::winuser::{
-    CallNextHookEx, EnumWindows, GetClassNameW, GetMessageW, GetWindowLongW, GetWindowRect,
-    GetWindowThreadProcessId, MoveWindow, SetWindowsHookExW, UnhookWindowsHookEx, CWPRETSTRUCT,
-    GWL_STYLE, HCBT_MOVESIZE, MSG, WH_CALLWNDPROCRET, WS_VISIBLE,
+    EnumWindows, GetClassNameW, GetWindowLongW, GetWindowRect,
+    GetWindowThreadProcessId, MoveWindow,
+    GWL_STYLE, WS_VISIBLE,
 };
 
 thread_local! {
@@ -225,9 +225,9 @@ extern "system" fn enum_windows_callback(hwnd: HWND, lparam: LPARAM) -> BOOL {
     TRUE // Continue enumeration if this window did not match
 }
 
-pub fn apply_profile(profile: &Profile, pid: Option<DWORD>) -> Result<(), WindowManagerError> {
+pub fn apply_profile(profile: &Profile, pid: Option<DWORD>, retry: bool, retries: Option<u8>) -> Result<(), WindowManagerError> {
     let pid = pid.unwrap_or_else(|| crate::process::get_pid_from_profile(profile).unwrap_or(0));
-    let start_time = Instant::now();
+    let retries = retries.unwrap_or(0);
 
     if pid == 0 {
         return Err(WindowManagerError::ProcessNotFound);
@@ -254,6 +254,14 @@ pub fn apply_profile(profile: &Profile, pid: Option<DWORD>) -> Result<(), Window
     } else if let Some(error) = error {
         Err(error)
     } else {
-        Err(WindowManagerError::ApplyFailed)
+        if retry && retries < 2 {
+            debug_log!("[{}] Faild to find active window, retrying in 5 seconds...", profile.name);
+            thread::sleep(Duration::from_secs(5));
+            return apply_profile(profile, Some(pid), true, Some(retries + 1));
+        } else {
+            debug_log!("[{}] Failed to find active window after 3 attempts.", profile.name);
+            Err(WindowManagerError::ApplyFailed)
+        }
+        
     }
 }

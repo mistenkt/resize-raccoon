@@ -1,6 +1,7 @@
 macro_rules! define_error_domain {
     ($domain:expr, { $($variant:ident($key:expr, $msg:expr)),* $(,)? }) => {
         #[derive(Debug)]
+        #[allow(dead_code)]
         pub enum Error {
             Generic(Box<dyn std::error::Error>),
             $($variant),*
@@ -49,7 +50,7 @@ macro_rules! define_error_domain {
                     $(Error::$variant => $msg.to_string()),*
                 }
             }
-
+            #[allow(dead_code)]
             pub fn generic<E>(error: E) -> Self
             where
                 E: std::error::Error + 'static,

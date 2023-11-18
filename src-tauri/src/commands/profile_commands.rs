@@ -12,7 +12,7 @@ pub fn profile_get<R: Runtime>(app_handle: AppHandle<R>) -> Result<Vec<Profile>,
 
 #[tauri::command]
 pub fn profile_apply(profile: Profile, pid: Option<u32>) -> Result<(), WindowManagerError> {
-    window_manager::apply_profile(&profile, pid.map(|p| p as DWORD))
+    window_manager::apply_profile(&profile, pid.map(|p| p as DWORD), true, Some(0))
 }
 
 #[tauri::command]
