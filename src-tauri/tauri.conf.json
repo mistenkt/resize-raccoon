@@ -69,7 +69,7 @@
       "active": true,
       "dialog": true,
       "endpoints": [
-        "https://raw.githubusercontent.com/mistenkt/resize-raccoon/main/latest_version.json"
+        "https://raw.githubusercontent.com/mistenkt/resize-raccoon/master/latest_version.json"
       ],
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDY5MTE3MjE3Q0YyMzkxMzEKUldReGtTUFBGM0lSYWNGNnBsZzc1QjF3Ni9vZEoxU0YwYzhVaERmU2RLUWtWTDdmZUxhS1pKN3YK"
     }
