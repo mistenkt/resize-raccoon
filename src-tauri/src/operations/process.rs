@@ -8,6 +8,11 @@ use crate::debug_utils::DebugLevel;
 use crate::profile::Profile;
 use crate::window_manager;
 use serde::{Deserialize, Serialize};
+use winapi::um::handleapi::CloseHandle;
+use winapi::um::minwinbase::STILL_ACTIVE;
+use winapi::um::processthreadsapi::GetExitCodeProcess;
+use winapi::um::processthreadsapi::OpenProcess;
+use winapi::um::winnt::PROCESS_QUERY_INFORMATION;
 use std::collections::HashSet;
 use std::fmt::Debug;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
@@ -95,7 +100,7 @@ pub fn watcher(
             let current_profiles: Vec<Profile> =
                 profiles_guard.iter().filter(|p| p.auto).cloned().collect();
 
-            debug_log!("Current profiles: {:?}", current_profiles);
+            debug_log_level!(DebugLevel::Verbose, "Current profiles: {:?}", current_profiles);
 
             drop(profiles_guard);
 
@@ -106,11 +111,11 @@ pub fn watcher(
                     .find(|p| p.name().to_lowercase() == profile.process_name.to_lowercase());
 
                 if process.is_none() {
-                    debug_log!("Could not find process: {}", profile.process_name);
+                    debug_log_level!(DebugLevel::Verbose, "Could not find process: {}", profile.process_name);
                     continue;
                 }
 
-                debug_log!("Found process: {:?}", process);
+                debug_log_level!(DebugLevel::Verbose,"Found process: {:?}", process);
 
                 let process_pid = process.unwrap().pid().as_u32();
 
@@ -158,5 +163,19 @@ pub fn watcher(
 
         // Sleep for a short duration before checking the flag again
         thread::sleep(Duration::from_millis(poll_rate_flag.load(Ordering::SeqCst)));
+    }
+}
+
+pub fn is_process_running(pid: DWORD) -> bool {
+    let process_handle = unsafe { OpenProcess(PROCESS_QUERY_INFORMATION, 0, pid) };
+
+    if !process_handle.is_null() {
+        let mut exit_code: DWORD = 0;
+        let result = unsafe { GetExitCodeProcess(process_handle, &mut exit_code) };
+        unsafe { CloseHandle(process_handle) };
+        
+        result != 0 && exit_code == STILL_ACTIVE
+    } else {
+        false
     }
 }
