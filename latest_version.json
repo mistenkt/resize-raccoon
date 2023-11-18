@@ -1,0 +1,11 @@
+{
+    "version":  "1.2.3",
+    "notes":  "Testing  \nAnother line\nEvem more lines\n- list?\n- list list?",
+    "pub_date":  "2023-11-18T22:22:27Z",
+    "platforms":  {
+                      "windows-x86_64":  {
+                                             "signature":  "foosignature",
+                                             "url":  "https://github.com/mistenkt/resize-raccoon/releases/download/v1.2.3/Resize.Raccoon_1.2.3_x64_en-US.msi.zip"
+                                         }
+                  }
+}
