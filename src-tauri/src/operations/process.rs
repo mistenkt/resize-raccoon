@@ -133,10 +133,10 @@ pub fn watcher(
 
                 let profile_clone = profile.clone();
 
-                std::thread::spawn(move || {
+                thread::Builder::new().name("Process Watcher - Apply".to_string()).spawn(move || {
                     std::thread::sleep(Duration::from_millis(profile_clone.delay as u64));
                     let _ = window_manager::apply_profile(&profile_clone, Some(process_pid), true, Some(0));
-                });
+                }).unwrap();
             }
 
             // Remove any potential applied profiles that are no longer running

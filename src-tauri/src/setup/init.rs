@@ -3,6 +3,8 @@ use std::sync::{
     Arc, Mutex,
 };
 
+use std::thread;
+
 use crate::debug_log;
 use crate::operations::{
     process, profile,
@@ -41,15 +43,15 @@ pub fn setup<R: Runtime>(builder: Builder<R>) -> Builder<R> {
 
         let profiles_clone = profiles.clone();
 
-        std::thread::spawn(move || {
+        thread::Builder::new().name("Process watcher".to_string()).spawn(move || {
             process::watcher(watcher_flag.clone(), poll_rate_flag.clone(), profiles_clone);
-        });
+        }).unwrap();
 
         let profiles_clone = profiles.clone();
 
-        std::thread::spawn(move || {
+        thread::Builder::new().name("IPC Listener".to_string()).spawn(move || {
             ipc::listener(profiles_clone);
-        });
+        }).unwrap();
 
         Ok(())
     })

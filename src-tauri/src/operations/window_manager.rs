@@ -135,7 +135,7 @@ fn watch_for_profile_overrides(hwnd: HWND, profile: &Profile, pid: DWORD) {
     let profile_clone = profile.clone();
     let hwnd_as_int = hwnd as usize;
 
-    thread::spawn(move || {
+    thread::Builder::new().name("Profile override watcher".to_string()).spawn(move || {
         let mut poll_counter = 0;
         let mut poll_extended_counter = 0;
 
@@ -185,7 +185,7 @@ fn watch_for_profile_overrides(hwnd: HWND, profile: &Profile, pid: DWORD) {
                 }
             }
         }
-    });
+    }).unwrap();
 }
 
 extern "system" fn enum_windows_callback(hwnd: HWND, lparam: LPARAM) -> BOOL {
