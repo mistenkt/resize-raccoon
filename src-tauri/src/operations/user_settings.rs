@@ -16,6 +16,7 @@ pub struct UserSettings {
     pub check_for_updates: bool,
     pub has_prompted_for_launch_on_start: bool,
     pub launch_on_start: bool,
+    pub start_minimized: bool,
 }
 
 #[derive(Serialize)]
@@ -24,6 +25,7 @@ pub struct SerializeableUserSettings {
     pub poll_rate: u64,
     pub check_for_updates: bool,
     pub has_prompted_for_launch_on_start: bool,
+    pub start_minimized: bool,
 }
 
 impl Default for UserSettings {
@@ -34,6 +36,7 @@ impl Default for UserSettings {
             check_for_updates: true,
             launch_on_start: false,
             has_prompted_for_launch_on_start: false,
+            start_minimized: false,
         }
     }
 }
@@ -45,6 +48,7 @@ impl UserSettings {
             poll_rate: self.poll_rate,
             check_for_updates: self.check_for_updates,
             has_prompted_for_launch_on_start: self.has_prompted_for_launch_on_start,
+            start_minimized: self.start_minimized,
         }
     }
 }

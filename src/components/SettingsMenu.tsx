@@ -35,6 +35,10 @@ const SettingsMenu = () => {
         });
     };
 
+    const handleStartMinimizedToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+        updateSettings({ startMinimized: e.target.checked });
+    }
+
     return (
         <div className="sidebar bg-base-100 drop-shadow-2xl flex flex-col p-3 pt-16">
             <div className="form-control w-full">
@@ -49,6 +53,27 @@ const SettingsMenu = () => {
                     className="toggle toggle-accent toggle-md"
                     checked={getSettings().launchOnStart}
                     onChange={handleLaunchOnStartToggle}
+                />
+            </div>
+            <div className="divider mt-2 mb-1" />
+            <div className="form-control w-full">
+                <label className="label pb-1" htmlFor="start_minimized">
+                    <span className="text-2xs uppercase font-semibold">
+                        {t('settings.startMinimized.title')}
+                    </span>
+                    <div
+                        className="tooltip before:w-[300px] before:-left-[10px] before:translate-x-0"
+                        data-tip={t('settings.startMinimized.description')}
+                    >
+                        <Info size=".8em" />
+                    </div>
+                </label>
+                <input
+                    id="start_minimized"
+                    type="checkbox"
+                    className="toggle toggle-accent toggle-md"
+                    checked={getSettings().startMinimized}
+                    onChange={handleStartMinimizedToggle}
                 />
             </div>
             <div className="divider mt-2 mb-1" />
