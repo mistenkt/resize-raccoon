@@ -71,6 +71,9 @@ const en = {
             "title": "Process poll rate (ms)",
             "description": "How often should we check for new applications being launched.",
         },
+        "launchOnStart": {
+            "title": "Start with windows"
+        }
     },
     "errors": {
         "window_manager": {
@@ -82,6 +85,11 @@ const en = {
         "profile": {
             "not_found": "Profile not found, restart the program to sync profiles.",
             "profile_path_error": "Couldnt locate the profile path, this is bad, but shouldnt happen. Idk, just dont delete the application data folder I guess.",
+        },
+        "settings": {
+            "launch_on_start_error": "Unable to toggle launch on start",
+            "unable_to_fetch_app_data": "Unable to fetch application meta data",
+            "settings_path_error": "Could not locate the settings.json file",
         }
     }
 }

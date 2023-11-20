@@ -26,8 +26,7 @@ const invokeWithToast = async (command: string, params?: any): Promise<any> => {
     if (success || !error) {
         return success;
     }
-
-    const [errorDomain, errorType] = error.error?.split('.');
+    const [errorDomain, errorType] = error?.error?.split('.');
 
     const message =
         errorDomain && errorType
@@ -79,6 +78,7 @@ const settings = {
         invokeWithToast('settings_update', {
             settings: caseConvert.toSnake(settings),
         }),
+    toggleLaunchOnStart: async (launchOnStart: boolean) => invokeWithToast('settings_toggle_launch_on_start', {launchOnStart}),
 };
 
 const backend = {
