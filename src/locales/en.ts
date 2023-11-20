@@ -73,7 +73,11 @@ const en = {
         },
         "launchOnStart": {
             "title": "Start with windows"
-        }
+        },
+        "startMinimized": {
+            "title": "Start minimized",
+            "description": "Start the program minimized to the system tray.",
+        },
     },
     "errors": {
         "window_manager": {

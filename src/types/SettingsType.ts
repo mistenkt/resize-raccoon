@@ -4,6 +4,7 @@ interface Settings {
     checkForUpdates: boolean;
     launchOnStart: boolean;
     hasPromptedForLaunchOnStart: boolean;
+    startMinimized: boolean;
 }
 
 export default Settings;

@@ -53,6 +53,12 @@ pub fn setup<R: Runtime>(builder: Builder<R>) -> Builder<R> {
             ipc::listener(profiles_clone);
         }).unwrap();
 
+        // Check if we should minimize to sys tray
+        if user_settings.start_minimized {
+            let window = app.get_window("main").unwrap();
+            window.hide().unwrap();
+        }
+
         Ok(())
     })
 }
