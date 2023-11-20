@@ -25,6 +25,8 @@ To install Resize Raccoon, head over to the [Releases](https://github.com/misten
 
 ## Usage
 
+If you prefer a visual guide, Dan Suzuki has a [Youtube video](https://www.youtube.com/watch?v=ei5UAPHBp7o) showing of the app.
+
 After installing Resize Raccoon, you can create custom profiles for your applications:
 
 1. Open the Resize Raccoon interface.
