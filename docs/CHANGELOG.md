@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0] - 2023-11-20
+#### Added
+- Start with windows settings option
+- Start minimized settings option
+#### Fixed
+- Fixed bug where profile test button didnt stop loading after profile had been applied
+
 ## [1.4.0] - 2023-11-17
 #### Added
 - Massively improved performance of process watching. Like over 9000
