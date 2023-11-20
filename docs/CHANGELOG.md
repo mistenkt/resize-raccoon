@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.4.0] - 2023-11-20
+## [1.5.0] - 2023-11-20
 #### Added
 - Start with windows settings option
 - Start minimized settings option
