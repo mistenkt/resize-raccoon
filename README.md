@@ -39,7 +39,7 @@ After installing Resize Raccoon, you can create custom profiles for your applica
 6. Polling interval can be ajusted in the sidebar. It is set to 1000ms by deafult, in my testing it was very resource friendly so it shouldnt be problem.
 
 ### Triggering from StreamDeck
-As long as the application is running you can trigger profiles from a .bat file or just from cmd directly using `echo apply-profile {profileName} > \\.pipe\resize-raccoon`. If your profile name contains spaces please wrap it in quites `echo apply-profile "my profile" > \\.pipe\resize-raccoon`
+As long as the application is running you can trigger profiles from a .bat file or just from cmd directly using `echo apply-profile {profileName} > \\.\pipe\resize-raccoon`. If your profile name contains spaces please wrap it in quites `echo apply-profile "my profile" > \\.\pipe\resize-raccoon`
 
 For triggering profiles with stream deck you can either create a .bat file containting the command, or install the streamdeck-commandline plugin found here [mikepowell/streamdeck-commandline](https://github.com/mikepowell/streamdeck-commandline).
 
