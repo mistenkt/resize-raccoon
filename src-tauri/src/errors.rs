@@ -84,3 +84,11 @@ pub mod profile {
         ProfilePathError("profile_path_error", "Could not find the profile path."),
     });
 }
+
+pub mod settings {
+    define_error_domain!("settings", {
+        LaunchOnStartError("launch_on_start_error", "Could not set launch on start."),
+        UnableToFetchAppData("unable_to_fetch_app_data", "Could not fetch app data."),
+        SettingsPathError("settings_path_error", "Could not find the settings path."),
+    });
+}

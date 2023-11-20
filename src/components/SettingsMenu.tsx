@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Info } from 'react-feather';
 import { getSettings, updateSettings } from '../state/settingsState';
 import { useTranslation } from '../utils/i18n/useTranslation';
+import backend from '../utils/backend';
 
 const SettingsMenu = () => {
     const t = useTranslation();
@@ -25,10 +26,34 @@ const SettingsMenu = () => {
         updateSettings({ checkForUpdates: e.target.checked });
     };
 
+    const handleLaunchOnStartToggle = (
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        updateSettings({ launchOnStart: e.target.checked }, true);
+        backend.settings.toggleLaunchOnStart(e.target.checked).catch(() => {
+            updateSettings({ launchOnStart: !e.target.checked }, true);
+        });
+    };
+
     return (
         <div className="sidebar bg-base-100 drop-shadow-2xl flex flex-col p-3 pt-16">
             <div className="form-control w-full">
-                <label className="label pb-1">
+                <label className="label pb-1" htmlFor="launch_on_start">
+                    <span className="text-2xs uppercase font-semibold">
+                        {t('settings.launchOnStart.title')}
+                    </span>
+                </label>
+                <input
+                    id="launch_on_start"
+                    type="checkbox"
+                    className="toggle toggle-accent toggle-md"
+                    checked={getSettings().launchOnStart}
+                    onChange={handleLaunchOnStartToggle}
+                />
+            </div>
+            <div className="divider mt-2 mb-1" />
+            <div className="form-control w-full">
+                <label className="label pb-1" htmlFor="updates_on_launch">
                     <span className="text-2xs uppercase font-semibold">
                         {t('settings.checkForUpdates.title')}
                     </span>

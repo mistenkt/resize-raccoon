@@ -3,10 +3,10 @@ use std::sync::atomic::Ordering;
 use crate::setup::state::AppState;
 use crate::user_settings::{self, UserSettings};
 use tauri::{AppHandle, Manager, Runtime};
+use crate::errors::settings::Error as SettingsError;
 
 #[tauri::command]
-pub fn settings_get<R: Runtime>(app: AppHandle<R>) -> Result<UserSettings, String> {
-    // Call the get_user_settings function and directly return the Result<(), String>
+pub fn settings_get<R: Runtime>(app: AppHandle<R>) -> Result<UserSettings, SettingsError> {
     user_settings::get_user_settings(&app)
 }
 
@@ -14,7 +14,7 @@ pub fn settings_get<R: Runtime>(app: AppHandle<R>) -> Result<UserSettings, Strin
 pub fn settings_update<R: Runtime>(
     app: AppHandle<R>,
     settings: UserSettings,
-) -> Result<(), String> {
+) -> Result<(), SettingsError> {
     // Access the managed state from the application
     let app_state = app.state::<AppState>();
 
@@ -27,4 +27,9 @@ pub fn settings_update<R: Runtime>(
         .store(settings.poll_rate, Ordering::SeqCst);
 
     user_settings::update_user_settings(settings, &app)
+}
+
+#[tauri::command]
+pub fn settings_toggle_launch_on_start<R: Runtime>(app: AppHandle<R>, launch_on_start: bool) -> Result<bool, SettingsError> {
+    user_settings::toggle_launch_on_start(launch_on_start, &app)
 }

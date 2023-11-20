@@ -14,5 +14,6 @@ pub fn register_commands<R: Runtime>(builder: Builder<R>) -> Builder<R> {
         process_commands::process_get,
         settings_commands::settings_get,
         settings_commands::settings_update,
+        settings_commands::settings_toggle_launch_on_start,
     ])
 }
