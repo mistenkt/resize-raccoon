@@ -68,9 +68,9 @@ const ProfileEditor = ({ profile }: Props) => {
         }
     }, [selectedProcess, name]);
 
-    const onTest = () => {
+    const onTest = (stopLoading: () => void) => {
         const testProfile = getUpdatedProfile();
-        backend.profile.apply(testProfile);
+        backend.profile.apply(testProfile).finally(stopLoading);
     };
 
     const testEnabled = useMemo(() => {

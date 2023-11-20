@@ -2,7 +2,7 @@ import { useTranslation } from "../../utils/i18n/useTranslation";
 import LoadingButton from "../LoadingButton";
 
 interface Props {
-    onTest: () => void;
+    onTest: (stopLoading:() => void) => void;
     canTest: boolean;
     onDelete?: () => void;
     onCancel: () => void;
