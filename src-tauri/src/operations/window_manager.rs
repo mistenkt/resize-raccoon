@@ -1,19 +1,21 @@
 use std::cell::RefCell;
-use std::ptr::NonNull;
+use std::ptr::{self, NonNull};
 use std::thread;
 use std::time::Duration;
 
 use crate::debug_log;
 use crate::errors::window_manager::Error as WindowManagerError;
-use crate::profile::Profile;
 use crate::process::is_process_running;
+use crate::profile::Profile;
 use winapi::shared::minwindef::{BOOL, DWORD, FALSE, LPARAM, TRUE};
 use winapi::shared::windef::{HWND, RECT};
 use winapi::um::errhandlingapi::GetLastError;
 use winapi::um::winuser::{
-    EnumWindows, GetClassNameW, GetWindowLongW, GetWindowRect,
-    GetWindowThreadProcessId, MoveWindow,
-    GWL_STYLE, WS_VISIBLE,
+    EnumWindows, GetClassNameW, GetWindowLongPtrW, GetWindowLongW, GetWindowRect,
+    GetWindowThreadProcessId, MoveWindow, SetWindowLongPtrW, SetWindowPos, GWL_EXSTYLE, GWL_STYLE,
+    SWP_FRAMECHANGED, SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOOWNERZORDER, SWP_NOSENDCHANGING,
+    SWP_NOSIZE, SWP_NOZORDER, WS_BORDER, WS_DLGFRAME, WS_EX_CLIENTEDGE, WS_EX_DLGMODALFRAME,
+    WS_EX_STATICEDGE, WS_EX_WINDOWEDGE, WS_THICKFRAME, WS_VISIBLE,
 };
 
 thread_local! {
@@ -86,11 +88,43 @@ fn validate_window_rect(hwnd: HWND, profile: &Profile) -> bool {
     was_correctly_moved
 }
 
+fn remove_window_borders(hwnd: HWND, profile: &Profile) {
+    if profile.remove_borders == false {
+        return;
+    }
+
+    // Remove standard window styles
+    let mut style = unsafe { GetWindowLongPtrW(hwnd, GWL_STYLE) };
+    style |= (WS_THICKFRAME | WS_DLGFRAME | WS_BORDER) as isize;
+    style ^= (WS_THICKFRAME | WS_DLGFRAME | WS_BORDER) as isize;
+    unsafe { SetWindowLongPtrW(hwnd, GWL_STYLE, style) };
+
+    // Remove extended window styles
+    let mut ex_style = unsafe { GetWindowLongPtrW(hwnd, GWL_EXSTYLE) };
+    ex_style |=
+        (WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE) as isize;
+    ex_style ^=
+        (WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE) as isize;
+    unsafe { SetWindowLongPtrW(hwnd, GWL_EXSTYLE, ex_style) };
+
+    // Adjust window position to refresh the appearance
+    let u_flags = SWP_NOSIZE
+        | SWP_NOMOVE
+        | SWP_NOZORDER
+        | SWP_NOACTIVATE
+        | SWP_NOOWNERZORDER
+        | SWP_NOSENDCHANGING
+        | SWP_FRAMECHANGED;
+    unsafe { SetWindowPos(hwnd, ptr::null_mut(), 0, 0, 0, 0, u_flags) };
+}
+
 fn move_and_validate_window(
     hwnd: HWND,
     profile: &Profile,
     pid: DWORD,
 ) -> Result<(), WindowManagerError> {
+    remove_window_borders(hwnd, profile);
+
     let moved = unsafe {
         MoveWindow(
             hwnd,
@@ -135,65 +169,78 @@ fn watch_for_profile_overrides(hwnd: HWND, profile: &Profile, pid: DWORD) {
     let profile_clone = profile.clone();
     let hwnd_as_int = hwnd as usize;
 
-    thread::Builder::new().name("Profile override watcher".to_string()).spawn(move || {
-        let mut poll_counter = 0;
-        let mut poll_extended_counter = 0;
+    thread::Builder::new()
+        .name("Profile override watcher".to_string())
+        .spawn(move || {
+            let mut poll_counter = 0;
+            let mut poll_extended_counter = 0;
 
-        let poll_itterations = 10;
-        let poll_extended_itterations = 5;
+            let poll_itterations = 10;
+            let poll_extended_itterations = 5;
 
-        let hwnd_clone = hwnd_as_int as HWND;
+            let hwnd_clone = hwnd_as_int as HWND;
 
-        loop {
-
-            if !is_process_running(pid) {
-                debug_log!("[{}] Process no longer running, exiting override polling", profile_clone.name);
-                break;
-            }
-
-            // check pos
-            let matches_profile = validate_window_rect(hwnd_clone, &profile_clone);
-            poll_counter += 1;
-
-            if poll_counter <= poll_itterations {
-                debug_log!("[{}] Polling for profile overrides: [{}/10 x 1second]", profile_clone.name, poll_counter);
-            } else {
-                poll_extended_counter += 1;
-                debug_log!("[{}] Polling for profile overrides: [{}/5 x 5seconds]", profile_clone.name, poll_extended_counter);
-            }
-            
-
-            if !matches_profile {
-                debug_log!("Window for PID {} was moved or resized.", pid);
-                debug_window(hwnd_clone);
-
-                let result = move_and_validate_window(hwnd_clone, &profile_clone, pid);
-                if let Err(error) = result {
-                    debug_log!("Failed to re-apply profile: {:?}", error);
-                }
-            }
-
-            if poll_counter < poll_itterations {
-                thread::sleep(Duration::from_secs(1));
-            } else {
-                if poll_extended_counter < poll_extended_itterations {
-                    thread::sleep(Duration::from_secs(5));
-                } else {
-                    // we are done polling
-                    debug_log!("Done polling for profile overrides.");
+            loop {
+                if !is_process_running(pid) {
+                    debug_log!(
+                        "[{}] Process no longer running, exiting override polling",
+                        profile_clone.name
+                    );
                     break;
                 }
+
+                // check pos
+                let matches_profile = validate_window_rect(hwnd_clone, &profile_clone);
+                poll_counter += 1;
+
+                if poll_counter <= poll_itterations {
+                    debug_log!(
+                        "[{}] Polling for profile overrides: [{}/10 x 1second]",
+                        profile_clone.name,
+                        poll_counter
+                    );
+                } else {
+                    poll_extended_counter += 1;
+                    debug_log!(
+                        "[{}] Polling for profile overrides: [{}/5 x 5seconds]",
+                        profile_clone.name,
+                        poll_extended_counter
+                    );
+                }
+
+                if !matches_profile {
+                    debug_log!("Window for PID {} was moved or resized.", pid);
+                    debug_window(hwnd_clone);
+
+                    let result = move_and_validate_window(hwnd_clone, &profile_clone, pid);
+                    if let Err(error) = result {
+                        debug_log!("Failed to re-apply profile: {:?}", error);
+                    }
+                }
+
+                if poll_counter < poll_itterations {
+                    thread::sleep(Duration::from_secs(1));
+                } else {
+                    if poll_extended_counter < poll_extended_itterations {
+                        thread::sleep(Duration::from_secs(5));
+                    } else {
+                        // we are done polling
+                        debug_log!("Done polling for profile overrides.");
+                        break;
+                    }
+                }
             }
-        }
-    }).unwrap();
+        })
+        .unwrap();
 }
 
 extern "system" fn enum_windows_callback(hwnd: HWND, lparam: LPARAM) -> BOOL {
-    let (pid, profile_ptr, mut success_ptr, mut error_ptr): (
+    let (pid, profile_ptr, mut success_ptr, mut error_ptr, monitor): (
         DWORD,
         *const Profile,
         NonNull<bool>,
         NonNull<Option<WindowManagerError>>,
+        bool,
     ) = unsafe {
         *(lparam
             as *const (
@@ -201,6 +248,7 @@ extern "system" fn enum_windows_callback(hwnd: HWND, lparam: LPARAM) -> BOOL {
                 *const Profile,
                 NonNull<bool>,
                 NonNull<Option<WindowManagerError>>,
+                bool,
             ))
     };
 
@@ -212,7 +260,9 @@ extern "system" fn enum_windows_callback(hwnd: HWND, lparam: LPARAM) -> BOOL {
         match result {
             Ok(()) => {
                 unsafe { *success_ptr.as_mut() = true };
-                watch_for_profile_overrides(hwnd, profile, pid);
+                if monitor {
+                    watch_for_profile_overrides(hwnd, profile, pid);
+                }
             }
             Err(error) => unsafe {
                 *success_ptr.as_mut() = false;
@@ -225,9 +275,57 @@ extern "system" fn enum_windows_callback(hwnd: HWND, lparam: LPARAM) -> BOOL {
     TRUE // Continue enumeration if this window did not match
 }
 
-pub fn apply_profile(profile: &Profile, pid: Option<DWORD>, retry: bool, retries: Option<u8>) -> Result<(), WindowManagerError> {
-    let pid = pid.unwrap_or_else(|| crate::process::get_pid_from_profile(profile).unwrap_or(0));
-    let retries = retries.unwrap_or(0);
+#[derive(Debug)]
+pub struct ApplyConfig {
+    pid: Option<u32>,
+    retry: bool,
+    retries: u8,
+    monitor: bool,
+}
+
+impl Default for ApplyConfig {
+    fn default() -> Self {
+        ApplyConfig {
+            pid: None,
+            retry: false,
+            retries: 0,
+            monitor: false,
+        }
+    }
+}
+
+impl ApplyConfig {
+    pub fn new() -> Self {
+        Default::default()
+    }
+
+    pub fn pid(mut self, pid: Option<DWORD>) -> Self {
+        self.pid = pid;
+        self
+    }
+
+    pub fn retry(mut self, retry: bool) -> Self {
+        self.retry = retry;
+        self
+    }
+
+    pub fn retries(mut self, retries: u8) -> Self {
+        self.retries = retries;
+        self
+    }
+
+    pub fn monitor(mut self, monitor: bool) -> Self {
+        self.monitor = monitor;
+        self
+    }
+}
+
+pub fn apply_profile(profile: &Profile, config: ApplyConfig) -> Result<(), WindowManagerError> {
+    let pid = config
+        .pid
+        .unwrap_or_else(|| crate::process::get_pid_from_profile(profile).unwrap_or(0));
+
+    debug_log!("Profile config {:#?}", config);
 
     if pid == 0 {
         return Err(WindowManagerError::ProcessNotFound);
@@ -239,7 +337,13 @@ pub fn apply_profile(profile: &Profile, pid: Option<DWORD>, retry: bool, retries
     let mut error = None;
     let error_ptr = NonNull::new(&mut error).unwrap();
 
-    let callback_data = (pid, profile as *const _, success_ptr, error_ptr);
+    let callback_data = (
+        pid,
+        profile as *const _,
+        success_ptr,
+        error_ptr,
+        config.monitor,
+    );
 
     unsafe {
         EnumWindows(
@@ -254,14 +358,26 @@ pub fn apply_profile(profile: &Profile, pid: Option<DWORD>, retry: bool, retries
     } else if let Some(error) = error {
         Err(error)
     } else {
-        if retry && retries < 2 {
-            debug_log!("[{}] Faild to find active window, retrying in 5 seconds...", profile.name);
+        if config.retry && config.retries < 2 {
+            debug_log!(
+                "[{}] Faild to find active window, retrying in 5 seconds...",
+                profile.name
+            );
             thread::sleep(Duration::from_secs(5));
-            return apply_profile(profile, Some(pid), true, Some(retries + 1));
+
+            let retry_config = ApplyConfig::new()
+                .pid(Some(pid))
+                .retry(true)
+                .monitor(config.monitor)
+                .retries(config.retries + 1);
+
+            return apply_profile(profile, retry_config);
         } else {
-            debug_log!("[{}] Failed to find active window after 3 attempts.", profile.name);
+            debug_log!(
+                "[{}] Failed to find active window after 3 attempts.",
+                profile.name
+            );
             Err(WindowManagerError::ApplyFailed)
         }
-        
     }
 }

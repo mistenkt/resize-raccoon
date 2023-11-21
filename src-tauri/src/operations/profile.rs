@@ -21,6 +21,7 @@ pub struct Profile {
     pub window_width: i32,
     pub window_pos_y: i32,
     pub window_pos_x: i32,
+    pub remove_borders: bool,
 }
 
 impl Default for Profile {
@@ -35,6 +36,7 @@ impl Default for Profile {
             window_width: 800,
             window_pos_y: 0,
             window_pos_x: 0,
+            remove_borders: false,
         }
     }
 }

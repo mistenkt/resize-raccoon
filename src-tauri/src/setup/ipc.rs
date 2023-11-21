@@ -5,7 +5,7 @@ use std::sync::{Arc, Mutex};
 
 use crate::debug_log;
 use crate::operations::profile::Profile;
-use crate::operations::window_manager;
+use crate::operations::window_manager::{self, ApplyConfig};
 
 pub fn listener(profiles: Arc<Mutex<Vec<Profile>>>) {
     let pipe_name = r"\\.\pipe\resize-raccoon";
@@ -58,7 +58,10 @@ pub fn listener(profiles: Arc<Mutex<Vec<Profile>>>) {
                 .iter()
                 .find(|p| p.name.to_lowercase() == *profile_name)
             {
-                let _ = window_manager::apply_profile(&profile, None, true, Some(0));
+                let _ = window_manager::apply_profile(
+                    &profile,
+                    ApplyConfig::new().retry(true).monitor(true),
+                );
             } else {
                 debug_log!("Profile not found: {}", profile_name)
             }

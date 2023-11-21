@@ -8,6 +8,7 @@ pub fn register_commands<R: Runtime>(builder: Builder<R>) -> Builder<R> {
     builder.invoke_handler(generate_handler![
         profile_commands::profile_get,
         profile_commands::profile_apply,
+        profile_commands::profile_test,
         profile_commands::profile_add,
         profile_commands::profile_update,
         profile_commands::profile_delete,

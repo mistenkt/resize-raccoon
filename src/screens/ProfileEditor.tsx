@@ -37,6 +37,9 @@ const ProfileEditor = ({ profile }: Props) => {
     const [autoResize, setAutoResize] = useState<boolean>(
         profile?.auto || false
     );
+    const [removeBorders, setRemoveBorders] = useState<boolean>(
+        profile?.removeBorders || false
+    );
     const [delay, setDelay] = useState<string>(String(profile?.delay) || '');
     const uuid = useMemo(() => {
         if (profile) {
@@ -56,6 +59,7 @@ const ProfileEditor = ({ profile }: Props) => {
         windowPosY: Number(windowPosY),
         delay: Number(delay) || 0,
         auto: autoResize,
+        removeBorders,
     });
 
     const handleCancel = () => {
@@ -70,7 +74,7 @@ const ProfileEditor = ({ profile }: Props) => {
 
     const onTest = (stopLoading: () => void) => {
         const testProfile = getUpdatedProfile();
-        backend.profile.apply(testProfile).finally(stopLoading);
+        backend.profile.test(testProfile).finally(stopLoading);
     };
 
     const testEnabled = useMemo(() => {
@@ -93,7 +97,7 @@ const ProfileEditor = ({ profile }: Props) => {
     const handleSave = async () => {
         const updatedProfile = getUpdatedProfile();
         const endpoint = profile ? backend.profile.update : backend.profile.add;
-        
+
         await endpoint(updatedProfile);
         await refreshProfiles();
         setScreen(Screen.HOME);
@@ -119,7 +123,7 @@ const ProfileEditor = ({ profile }: Props) => {
 
     return (
         <div className="flex flex-col h-screen bg-gradient-to-t from-[#660e99] to-[#941882]">
-            <ProfileEditorHeader/>
+            <ProfileEditorHeader />
             <div className="flex-grow w-full h-[100vh] grid grid-rows-[1fr_auto] pr-8 pl-8">
                 <div className="grid grid-cols-2 gap-8 mb-8 ">
                     <div>
@@ -151,6 +155,44 @@ const ProfileEditor = ({ profile }: Props) => {
                                 onChange={(e) => setName(e.target.value)}
                             />
                         </FormControl>
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                            <FormControl
+                                id="auto_resize"
+                                label={t('profile.autoResize.title')}
+                                description={t(
+                                    'profile.autoResize.description'
+                                )}
+                                tooltip="top-right"
+                            >
+                                <div className="h-[48px] flex items-center">
+                                    <input
+                                        id="auto_resize"
+                                        type="checkbox"
+                                        className="toggle toggle-accent toggle-lg"
+                                        checked={autoResize}
+                                        onChange={(e) =>
+                                            setAutoResize(e.target.checked)
+                                        }
+                                    />
+                                </div>
+                            </FormControl>
+                            <FormControl
+                                id="auto_delay"
+                                label={t('profile.autoResizeDelay.title')}
+                                description={t(
+                                    'profile.autoResizeDelay.description'
+                                )}
+                                tooltip="top-left"
+                            >
+                                <input
+                                    type="number"
+                                    id="auto_delay"
+                                    className="input w-full"
+                                    value={delay}
+                                    onChange={(e) => setDelay(e.target.value)}
+                                />
+                            </FormControl>
+                        </div>
                     </div>
                     <div>
                         <FormControl
@@ -181,10 +223,12 @@ const ProfileEditor = ({ profile }: Props) => {
                             <FormControl
                                 id="window_width"
                                 label={t('profile.window.width.title')}
-                                description={t('profile.window.width.description')}
+                                description={t(
+                                    'profile.window.width.description'
+                                )}
                                 tooltip="top-center"
                             >
-                                 <input
+                                <input
                                     type="number"
                                     id="window_width"
                                     className="input w-full"
@@ -197,7 +241,9 @@ const ProfileEditor = ({ profile }: Props) => {
                             <FormControl
                                 id="window_height"
                                 label={t('profile.window.height.title')}
-                                description={t('profile.window.height.description')}
+                                description={t(
+                                    'profile.window.height.description'
+                                )}
                                 tooltip="top-left"
                             >
                                 <input
@@ -211,11 +257,13 @@ const ProfileEditor = ({ profile }: Props) => {
                                 />
                             </FormControl>
                         </div>
-                        <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div className="grid grid-cols-2 gap-4">
                             <FormControl
                                 id="window_pos_x"
                                 label={t('profile.window.posX.title')}
-                                description={t('profile.window.posX.description')}
+                                description={t(
+                                    'profile.window.posX.description'
+                                )}
                                 tooltip="top-center"
                             >
                                 <input
@@ -231,7 +279,9 @@ const ProfileEditor = ({ profile }: Props) => {
                             <FormControl
                                 id="window_pos_y"
                                 label={t('profile.window.posY.title')}
-                                description={t('profile.window.posY.description')}
+                                description={t(
+                                    'profile.window.posY.description'
+                                )}
                                 tooltip="top-left"
                             >
                                 <input
@@ -245,40 +295,24 @@ const ProfileEditor = ({ profile }: Props) => {
                                 />
                             </FormControl>
                         </div>
-
-                        <div className="grid grid-cols-2 gap-4 mb-4">
-                            <FormControl
-                                id="auto_resize"
-                                label={t('profile.autoResize.title')}
-                                description={t('profile.autoResize.description')}
-                                tooltip="top-center"
-                            >
-                                <div className="h-[48px] flex items-center">
-                                    <input
-                                        id="auto_resize"
-                                        type="checkbox"
-                                        className="toggle toggle-accent toggle-lg"
-                                        checked={autoResize}
-                                        onChange={(e) =>
-                                            setAutoResize(e.target.checked)
-                                        }
-                                    />
-                                </div>
-                            </FormControl>
-                            <FormControl
-                                id="auto_delay"
-                                label={t('profile.autoResizeDelay.title')}
-                                description={t('profile.autoResizeDelay.description')}
-                                tooltip="top-left">
-                                     <input
-                                        type="number"
-                                        id="auto_delay"
-                                        className="input w-full"
-                                        value={delay}
-                                        onChange={(e) => setDelay(e.target.value)}
-                                    />
-                                </FormControl>
-                        </div>
+                        <FormControl
+                            id="remove_borders"
+                            label={t('profile.window.borderless.title')}
+                            description={t(
+                                'profile.window.borderless.description'
+                            )}
+                            tooltip="top-center"
+                        >
+                            <input
+                                id="remove_borders"
+                                type="checkbox"
+                                className="toggle toggle-accent toggle-lg"
+                                checked={removeBorders}
+                                onChange={(e) =>
+                                    setRemoveBorders(e.target.checked)
+                                }
+                            />
+                        </FormControl>
                     </div>
                 </div>
             </div>

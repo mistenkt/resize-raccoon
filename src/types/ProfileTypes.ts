@@ -8,4 +8,5 @@ export interface Profile {
     windowWidth: number;
     windowPosY: number;
     windowPosX: number;
+    removeBorders: boolean;
 }

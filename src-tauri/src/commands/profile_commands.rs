@@ -1,9 +1,9 @@
 use crate::errors::profile::Error as ProfileError;
 use crate::errors::window_manager::Error as WindowManagerError;
+use crate::operations::window_manager::ApplyConfig;
 use crate::profile::{self, Profile};
 use crate::window_manager;
 use tauri::{AppHandle, Runtime};
-use winapi::shared::minwindef::DWORD;
 
 #[tauri::command]
 pub fn profile_get<R: Runtime>(app_handle: AppHandle<R>) -> Result<Vec<Profile>, ProfileError> {
@@ -12,7 +12,14 @@ pub fn profile_get<R: Runtime>(app_handle: AppHandle<R>) -> Result<Vec<Profile>,
 
 #[tauri::command]
 pub fn profile_apply(profile: Profile, pid: Option<u32>) -> Result<(), WindowManagerError> {
-    window_manager::apply_profile(&profile, pid.map(|p| p as DWORD), true, Some(0))
+    let config = ApplyConfig::new().pid(pid).retry(true).monitor(true);
+    window_manager::apply_profile(&profile, config)
+}
+
+#[tauri::command]
+pub fn profile_test(profile: Profile, pid: Option<u32>) -> Result<(), WindowManagerError> {
+    let config = ApplyConfig::new().pid(pid).retry(false).monitor(false);
+    window_manager::apply_profile(&profile, config)
 }
 
 #[tauri::command]

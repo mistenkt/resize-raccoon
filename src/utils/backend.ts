@@ -26,12 +26,22 @@ const invokeWithToast = async (command: string, params?: any): Promise<any> => {
     if (success || !error) {
         return success;
     }
-    const [errorDomain, errorType] = error?.error?.split('.');
 
-    const message =
-        errorDomain && errorType
-            ? translate(`errors.${errorDomain}.${errorType}` as TranslationKeys)
-            : error?.message;
+    let message: string;
+
+    try {
+        const [errorDomain, errorType] = error?.error?.split('.');
+
+        message = translate(
+            `errors.${errorDomain}.${errorType}` as TranslationKeys
+        );
+    } catch (e) {
+        if (typeof error === 'string') {
+            message = error;
+        } else {
+            message = translate('errors.unknown');
+        }
+    }
 
     addToast({
         type: ToastType.ERROR,
@@ -46,6 +56,10 @@ const profile = {
     },
     apply: async (profile: Profile) =>
         invokeWithToast('profile_apply', {
+            profile: caseConvert.toSnake(profile),
+        }),
+    test: async (profile: Profile) =>
+        invokeWithToast('profile_test', {
             profile: caseConvert.toSnake(profile),
         }),
     update: async (profile: Profile) =>
@@ -78,7 +92,8 @@ const settings = {
         invokeWithToast('settings_update', {
             settings: caseConvert.toSnake(settings),
         }),
-    toggleLaunchOnStart: async (launchOnStart: boolean) => invokeWithToast('settings_toggle_launch_on_start', {launchOnStart}),
+    toggleLaunchOnStart: async (launchOnStart: boolean) =>
+        invokeWithToast('settings_toggle_launch_on_start', { launchOnStart }),
 };
 
 const backend = {

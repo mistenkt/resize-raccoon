@@ -5,6 +5,7 @@ extern crate winapi;
 use crate::debug_log;
 use crate::debug_log_level;
 use crate::debug_utils::DebugLevel;
+use crate::operations::window_manager::ApplyConfig;
 use crate::profile::Profile;
 use crate::window_manager;
 use serde::{Deserialize, Serialize};
@@ -151,11 +152,13 @@ pub fn watcher(
                     .name("Process Watcher - Apply".to_string())
                     .spawn(move || {
                         std::thread::sleep(Duration::from_millis(profile_clone.delay as u64));
+
                         let _ = window_manager::apply_profile(
                             &profile_clone,
-                            Some(process_pid),
-                            true,
-                            Some(0),
+                            ApplyConfig::new()
+                                .pid(Some(process_pid))
+                                .retry(true)
+                                .monitor(true),
                         );
                     })
                     .unwrap();

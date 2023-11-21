@@ -41,6 +41,10 @@ const en = {
                 "title": "Window position x",
                 "description": "The horizontal position of the window on the screen. Depends on your setup. For triple monitors usually a negative value equal to the width of a single screen.",
             },
+            "borderless": {
+                "title": "Remove borders",
+                "description": "Remove the borders from the window. Only use this if you cannot select borderless in-game.",
+            }
         },
         "autoResize": {
             "title": "Auto resize",
@@ -94,7 +98,8 @@ const en = {
             "launch_on_start_error": "Unable to toggle launch on start",
             "unable_to_fetch_app_data": "Unable to fetch application meta data",
             "settings_path_error": "Could not locate the settings.json file",
-        }
+        },
+        "unknown": "Unexpected error"
     }
 }
 
