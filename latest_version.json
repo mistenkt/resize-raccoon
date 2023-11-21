@@ -1,11 +1,11 @@
 {
-    "version": "1.5.0",
-    "notes": "- Added start with windows option \n- Added start minimized option \n- Fixed bug with test button loading state",
-    "pub_date": "2023-11-18T22:22:27Z",
+    "version": "1.6.0",
+    "notes": "- Added borderless option (fixes ACC)",
+    "pub_date": "2023-11-21T22:37:01Z",
     "platforms": {
         "windows-x86_64": {
-            "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVReGtTUFBGM0lSYWRyWmVLRE5iR0NPNjhtOW51TGN4ZS9RK2w3Tm9xUGVXdVZMZDRuNEExbjMvYWwvYVBBamVEU1JXdk9VdmZuYVY0WGU3VGdpQjFDLzdiVmR6MzZPNEFzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzAwNTAzNTEzCWZpbGU6UmVzaXplIFJhY2Nvb25fMS41LjBfeDY0X2VuLVVTLm1zaS56aXAKNDN5dFgyUDV5M25IeEhZb3dwUVZ1YWdvdEF2RUs4Wk1LeUt1OEZoLzZyVW8vZldtaVY4R0ZKdCtQaFVORVFyYXcrdkY2TlBVdXROTk9PWUVDeExTREE9PQo=",
-            "url": "https://github.com/mistenkt/resize-raccoon/releases/download/v1.5.0/Resize.Raccoon_1.5.0_x64_en-US.msi.zip"
+            "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVReGtTUFBGM0lSYWN2NU0rT0cwNEtwVHV6QTdFQzJ5UjlIN2t5eVhjemVWaktRMWFCdlNXaXhnaGJ4c3pnbGpvV1NwTFJDYktEK1RCUGFLTm1BTm9JVTJJUVdTQ1BZK3dJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzAwNjA1ODAxCWZpbGU6UmVzaXplIFJhY2Nvb25fMS42LjBfeDY0X2VuLVVTLm1zaS56aXAKcHBLNHF1eGZjejluRklNV216RFVJdGFWN2ZINE1RcFlyRWp1aGpnN1gvNldKd0ZQSlM1a2xZMEN0RjRLQjRLK0xkczVKVy9wbmU3ZnEzVTVhT1FIQXc9PQo=",
+            "url": "https://github.com/mistenkt/resize-raccoon/releases/download/v1.6.0/Resize.Raccoon_1.6.0_x64_en-US.msi.zip"
         }
     }
 }
