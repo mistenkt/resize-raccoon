@@ -8,16 +8,15 @@
 
 ## Features
 
-- **Automatic Window Resizing**: Set your preferred window dimensions and let Resize Raccoon do the rest.
-- **Accessible Profiles**: Create profiles for different applications and scenarios.
-- **Match profile to process once**: After defining a profile you dont need to match it to the process again, manually trigger the preset with a single click as long as the target program is running
+- **Automatic Window Resizing**: Set your preferred window dimensions and let Resize Raccoon do the rest
+- **Accessible Profiles**: Create profiles for different applications and scenarios
+- **Match profile to process once**: After defining a profile you don't need to match it to the process again, manually trigger the preset with a single click as long as the target program is running
 - **Apply profiles from external applications/shortcuts**: Trigger your profiles from your stream deck or whatever
-
 
 [![Thumbnail description](./public/home-screenshot-thumb.png)](./public/home-screenshot.png)
 [![Thumbnail description](./public/profile-screenshot-thumb.png)](./public/profile-screenshot.png)
 
-Check the [ROADMAP.md](./docs/ROADMAP.md) for upcoming planned features.
+Check the [ROADMAP.md](./docs/ROADMAP.md) for upcoming features.
 
 ## Installing
 
@@ -25,7 +24,7 @@ To install Resize Raccoon, head over to the [Releases](https://github.com/misten
 
 ## Usage
 
-If you prefer a visual guide, Dan Suzuki has a [Youtube video](https://www.youtube.com/watch?v=ei5UAPHBp7o) showing of the app.
+If you prefer a visual guide, Dan Suzuki has a [Youtube video](https://www.youtube.com/watch?v=ei5UAPHBp7o) showing the app in action.
 
 After installing Resize Raccoon, you can create custom profiles for your applications:
 
@@ -37,13 +36,14 @@ After installing Resize Raccoon, you can create custom profiles for your applica
     4. You can add a custom delay if we need to wait a little before resizing.
 3. Once a profile is saved you will see it on the main screen, clicking the little window square on the profile will manually trigger the resize.
 4. For the automatic resize to work, you need to enable process watching on the home screen.
-5. Minimize to system tray and dont worry about having to resize your applications manually everytime you launch them again. 
-6. Polling interval can be ajusted in the sidebar. It is set to 1000ms by deafult, in my testing it was very resource friendly so it shouldnt be problem.
+5. Minimize to system tray and don't worry about having to resize your applications manually each you launch them. 
+6. Polling interval can be ajusted in the sidebar -- it is set to 1000ms by default, in my testing it was very resource friendly so it should not be a problem.
 
-### Triggering from StreamDeck
-As long as the application is running you can trigger profiles from a .bat file or just from cmd directly using `echo apply-profile {profileName} > \\.\pipe\resize-raccoon`. If your profile name contains spaces please wrap it in quites `echo apply-profile "my profile" > \\.\pipe\resize-raccoon`
+### Triggering from Stream Deck
 
-For triggering profiles with stream deck you can either create a .bat file containting the command, or install the streamdeck-commandline plugin found here [mikepowell/streamdeck-commandline](https://github.com/mikepowell/streamdeck-commandline).
+As long as the application is running you can trigger profiles from a .bat file or just from cmd directly using `echo apply-profile {profileName} > \\.\pipe\resize-raccoon`. If your profile name contains spaces please wrap it in quotes `echo apply-profile "my profile" > \\.\pipe\resize-raccoon`
+
+For triggering profiles with Stream Deck you can either create a .bat file containting the command, or install the streamdeck-commandline plugin found here [mikepowell/streamdeck-commandline](https://github.com/mikepowell/streamdeck-commandline).
 
 [StreamDeck icon](./public/resize-raccoon-streamdeck.png)
 
@@ -70,23 +70,26 @@ To run Resize Raccoon locally for development or personal use, follow these step
     ```
 
 ## Motivation and Inspiration
-I need a way to resize borderless windows to span across 3 monitors when playing certain Sim Racing games, and i hate Nvidia Surround.
 
-Inspired by [Simple Runtime Window Editor (SRWE)](https://github.com/dtgDTGdtg/SRWE) which has a bunch more features, but didnt have a sollution for automatically applying profiles to processes. You also had to manually select the process every time which was a bit tedious. Great app tho, but hasnt received updats in many years.
+I hate Nvidia Surround and needed a way to resize borderless windows to span across 3 monitors when playing certain sim racing games.
+
+Inspired by [Simple Runtime Window Editor (SRWE)](https://github.com/dtgDTGdtg/SRWE) which has a bunch more features, but didn't have a solution for automatically applying profiles to processes. You also had to manually select the process every time which was tedious. Great app though but it hasn't received updates in many years.
 
 I also wanted to try coding with Rust.
 
-## Why Raccoon?
-Idk, it sounded cute and im sure if they had access to the Windows API they would be great at managing your windows.
+## Why the name Raccoon?
 
-## Technologies and frameworks used
+It sounded cute and I'm sure if they had access to the Windows API they would be great at managing your windows.
+
+## Tech Stack
 
 - Rust
 - Tauri
 - Typescript
 - React
-- ChatGPT for some of the Rust/Tauri stuff.
-- Dall-E for the cute illustration. 
+- ChatGPT for some of the Rust/Tauri stuff
+- Dall-E for the cute illustration
 
 ## Contributing
-Feel free to open PRs, or suggest features!
+
+Feel free to open PRs or suggest features!
