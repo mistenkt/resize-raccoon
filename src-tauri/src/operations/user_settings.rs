@@ -17,6 +17,7 @@ pub struct UserSettings {
     pub has_prompted_for_launch_on_start: bool,
     pub launch_on_start: bool,
     pub start_minimized: bool,
+    pub close_to_tray: bool,
 }
 
 #[derive(Serialize)]
@@ -26,6 +27,7 @@ pub struct SerializeableUserSettings {
     pub check_for_updates: bool,
     pub has_prompted_for_launch_on_start: bool,
     pub start_minimized: bool,
+    pub close_to_tray: bool,
 }
 
 impl Default for UserSettings {
@@ -37,6 +39,7 @@ impl Default for UserSettings {
             launch_on_start: false,
             has_prompted_for_launch_on_start: false,
             start_minimized: false,
+            close_to_tray: true,
         }
     }
 }
@@ -49,6 +52,7 @@ impl UserSettings {
             check_for_updates: self.check_for_updates,
             has_prompted_for_launch_on_start: self.has_prompted_for_launch_on_start,
             start_minimized: self.start_minimized,
+            close_to_tray: self.close_to_tray,
         }
     }
 }

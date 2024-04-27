@@ -5,6 +5,7 @@ interface Settings {
     launchOnStart: boolean;
     hasPromptedForLaunchOnStart: boolean;
     startMinimized: boolean;
+    closeToTray: boolean;
 }
 
 export default Settings;

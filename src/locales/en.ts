@@ -82,6 +82,10 @@ const en = {
             "title": "Start minimized",
             "description": "Start the program minimized to the system tray.",
         },
+        "closeToTray": {
+            "title": "Close to tray",
+            "description": "Close the program to the system tray instead of exiting.",
+        }
     },
     "errors": {
         "window_manager": {
