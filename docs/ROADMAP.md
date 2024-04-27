@@ -3,7 +3,7 @@
 Quick overview over features i plan to implement
 |
 ## Current Status
-- Current version: `v1.4.0`
+- Current version: `v1.7.0`
 - [View Changelog](./CHANGELOG.md)
 
 ### Very soon™

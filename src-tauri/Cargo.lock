@@ -3019,7 +3019,7 @@ dependencies = [
 
 [[package]]
 name = "resize-raccoon"
-version = "1.6.0"
+version = "1.7.0"
 dependencies = [
  "auto-launch",
  "base64 0.21.5",

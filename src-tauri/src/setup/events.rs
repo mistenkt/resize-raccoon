@@ -1,4 +1,4 @@
-use tauri::{api::dialog, Builder, Manager, PhysicalSize, Runtime, WindowEvent};
+use tauri::{Builder, Manager, PhysicalSize, Runtime, WindowEvent};
 
 use crate::{debug_log, operations::user_settings::{self, UserSettings}};
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.7.0] - 2024-04-27
+#### Added
+- Close to tray setting. Enabled by default. No longer prompting when closing.
+#### Fixed
+- Forced dark mode to prevent style clashing for users with light-mode enabled.
+
 ## [1.6.0] - 2023-11-21
 #### Added
 - Borderless option (Fixes ACC)
