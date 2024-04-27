@@ -1,11 +1,11 @@
 {
-    "version": "1.6.0",
-    "notes": "- Added borderless option (fixes ACC)",
-    "pub_date": "2023-11-21T22:37:01Z",
+    "version": "1.7.0",
+    "notes": "- Close to tray setting. Enabled by default. No longer prompting when closing. \n- Forced dark mode to prevent style clashing for users with light-mode enabled.",
+    "pub_date": "2024-04-27T14:28:00Z",
     "platforms": {
         "windows-x86_64": {
-            "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVReGtTUFBGM0lSYWN2NU0rT0cwNEtwVHV6QTdFQzJ5UjlIN2t5eVhjemVWaktRMWFCdlNXaXhnaGJ4c3pnbGpvV1NwTFJDYktEK1RCUGFLTm1BTm9JVTJJUVdTQ1BZK3dJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzAwNjA1ODAxCWZpbGU6UmVzaXplIFJhY2Nvb25fMS42LjBfeDY0X2VuLVVTLm1zaS56aXAKcHBLNHF1eGZjejluRklNV216RFVJdGFWN2ZINE1RcFlyRWp1aGpnN1gvNldKd0ZQSlM1a2xZMEN0RjRLQjRLK0xkczVKVy9wbmU3ZnEzVTVhT1FIQXc9PQo=",
-            "url": "https://github.com/mistenkt/resize-raccoon/releases/download/v1.6.0/Resize.Raccoon_1.6.0_x64_en-US.msi.zip"
+            "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVReGtTUFBGM0lSYWVRMnkxYmd1L1UzQmVsTFhzN0pKQ3pBR2ROWGdENVhNeDNrYmlIeEVoRGtEU2U1UXFubG5lZHFwekcwWGVjT3VSNEVsMmVIeVJram8rYjIzYnlPOFFBPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzE0MjI3NjM3CWZpbGU6UmVzaXplIFJhY2Nvb25fMS43LjBfeDY0X2VuLVVTLm1zaS56aXAKdnZETldEVGx3dk5rRnBxVTJCV0VaMnRBRStUUS92d2hFTEtYRzNLbjdQc2hiOHI4YS9IQ1NaRDZHRWFUbCtZV3JmMTR3bXhOL0JydmlMZ2UwaVlORFE9PQo=",
+            "url": "https://github.com/mistenkt/resize-raccoon/releases/download/v1.7.0/Resize.Raccoon_1.7.0_x64_en-US.msi.zip"
         }
     }
 }
