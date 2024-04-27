@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   purge: {
     content: ["./src/**/*.{js,ts,jsx,tsx}"],
     options: {
@@ -25,5 +26,8 @@ export default {
     require('@tailwindcss/typography'),
     require('daisyui')
   ],
+  daisyui: {
+    themes: ["dark"]
+  }
 }
 
