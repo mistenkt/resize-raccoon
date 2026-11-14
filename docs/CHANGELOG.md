@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+#### Fixed
+- Windows are now resized without giving the target a chance to veto or clamp the new size (`SetWindowPos` with `SWP_NOSENDCHANGING`), falling back to the old `MoveWindow` call if that does not stick.
+- A profile is checked and re-applied when a display is connected, disconnected or rearranged while the target is running (for example a fourth monitor used as a dash). Previously the window was only watched for the first ~35 seconds.
+- Applying a second profile to the same process retires the first profile's watcher.
+
 ## [1.7.0] - 2024-04-27
 #### Added
 - Close to tray setting. Enabled by default. No longer prompting when closing.

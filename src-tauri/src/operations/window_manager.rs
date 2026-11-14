@@ -1,5 +1,7 @@
 use std::cell::RefCell;
 use std::ptr::{self, NonNull};
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::Mutex;
 use std::thread;
 use std::time::Duration;
 
@@ -11,15 +13,71 @@ use winapi::shared::minwindef::{BOOL, DWORD, FALSE, LPARAM, TRUE};
 use winapi::shared::windef::{HWND, RECT};
 use winapi::um::errhandlingapi::GetLastError;
 use winapi::um::winuser::{
-    EnumWindows, GetClassNameW, GetWindowLongPtrW, GetWindowLongW, GetWindowRect,
-    GetWindowThreadProcessId, MoveWindow, SetWindowLongPtrW, SetWindowPos, GWL_EXSTYLE, GWL_STYLE,
-    SWP_FRAMECHANGED, SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOOWNERZORDER, SWP_NOSENDCHANGING,
-    SWP_NOSIZE, SWP_NOZORDER, WS_BORDER, WS_DLGFRAME, WS_EX_CLIENTEDGE, WS_EX_DLGMODALFRAME,
-    WS_EX_STATICEDGE, WS_EX_WINDOWEDGE, WS_THICKFRAME, WS_VISIBLE,
+    EnumWindows, GetClassNameW, GetSystemMetrics, GetWindowLongPtrW, GetWindowLongW, GetWindowRect,
+    GetWindowThreadProcessId, IsWindow, MoveWindow, SetWindowLongPtrW, SetWindowPos, GWL_EXSTYLE,
+    GWL_STYLE, SM_CMONITORS, SM_CXVIRTUALSCREEN, SM_CYVIRTUALSCREEN, SM_XVIRTUALSCREEN,
+    SM_YVIRTUALSCREEN, SWP_FRAMECHANGED, SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOOWNERZORDER,
+    SWP_NOSENDCHANGING, SWP_NOSIZE, SWP_NOZORDER, WS_BORDER, WS_DLGFRAME, WS_EX_CLIENTEDGE,
+    WS_EX_DLGMODALFRAME, WS_EX_STATICEDGE, WS_EX_WINDOWEDGE, WS_THICKFRAME, WS_VISIBLE,
 };
 
 thread_local! {
     static HOOK_DATA: RefCell<Option<Profile>> = RefCell::new(None);
+}
+
+/// The newest override watcher per PID. Starting a watcher for a PID retires the previous one,
+/// so two profiles applied to the same process never fight each other.
+static ACTIVE_WATCHERS: Mutex<Vec<(DWORD, u64)>> = Mutex::new(Vec::new());
+static WATCHER_GENERATION: AtomicU64 = AtomicU64::new(0);
+
+fn register_watcher(pid: DWORD) -> u64 {
+    let generation = WATCHER_GENERATION.fetch_add(1, Ordering::SeqCst) + 1;
+    let mut watchers = ACTIVE_WATCHERS.lock().unwrap();
+    watchers.retain(|(watched_pid, _)| *watched_pid != pid);
+    watchers.push((pid, generation));
+    generation
+}
+
+fn is_current_watcher(pid: DWORD, generation: u64) -> bool {
+    ACTIVE_WATCHERS
+        .lock()
+        .unwrap()
+        .iter()
+        .any(|(watched_pid, watched_generation)| {
+            *watched_pid == pid && *watched_generation == generation
+        })
+}
+
+fn unregister_watcher(pid: DWORD, generation: u64) {
+    ACTIVE_WATCHERS
+        .lock()
+        .unwrap()
+        .retain(|(watched_pid, watched_generation)| {
+            !(*watched_pid == pid && *watched_generation == generation)
+        });
+}
+
+/// Monitor count plus the bounds of the virtual desktop. Changes whenever a display is
+/// connected, disconnected or rearranged.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct DisplayLayout {
+    monitors: i32,
+    x: i32,
+    y: i32,
+    width: i32,
+    height: i32,
+}
+
+fn current_display_layout() -> DisplayLayout {
+    unsafe {
+        DisplayLayout {
+            monitors: GetSystemMetrics(SM_CMONITORS),
+            x: GetSystemMetrics(SM_XVIRTUALSCREEN),
+            y: GetSystemMetrics(SM_YVIRTUALSCREEN),
+            width: GetSystemMetrics(SM_CXVIRTUALSCREEN),
+            height: GetSystemMetrics(SM_CYVIRTUALSCREEN),
+        }
+    }
 }
 
 fn is_target_window(hwnd: HWND, target_pid: DWORD) -> bool {
@@ -125,16 +183,39 @@ fn move_and_validate_window(
 ) -> Result<(), WindowManagerError> {
     remove_window_borders(hwnd, profile);
 
-    let moved = unsafe {
-        MoveWindow(
+    // SWP_NOSENDCHANGING skips WM_WINDOWPOSCHANGING, so neither the target's own handler nor
+    // the default min/max tracking limits get a chance to clamp the rect we ask for.
+    let flags = SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSENDCHANGING;
+    let mut moved = unsafe {
+        SetWindowPos(
             hwnd,
+            ptr::null_mut(),
             profile.window_pos_x,
             profile.window_pos_y,
             profile.window_width,
             profile.window_height,
-            TRUE,
+            flags,
         )
     };
+
+    if moved != 0 && !validate_window_rect(hwnd, profile) {
+        debug_log!(
+            "Window for PID {} did not keep the requested rect, retrying with MoveWindow.",
+            pid
+        );
+        debug_window(hwnd);
+
+        moved = unsafe {
+            MoveWindow(
+                hwnd,
+                profile.window_pos_x,
+                profile.window_pos_y,
+                profile.window_width,
+                profile.window_height,
+                TRUE,
+            )
+        };
+    }
 
     if moved == 0 {
         let error_code = unsafe { GetLastError() };
@@ -156,9 +237,15 @@ fn move_and_validate_window(
 
     if !validate_window_rect(hwnd, profile) {
         debug_log!(
-            "Failed to move and resize window for PID {}: Window was not moved correctly.",
-            pid
+            "Failed to move and resize window for PID {}: Window was not moved correctly. Wanted x {} y {} w {} h {}, display layout is {:?}.",
+            pid,
+            profile.window_pos_x,
+            profile.window_pos_y,
+            profile.window_width,
+            profile.window_height,
+            current_display_layout()
         );
+        debug_window(hwnd);
         return Err(WindowManagerError::ApplyFailed);
     }
 
@@ -168,68 +255,92 @@ fn move_and_validate_window(
 fn watch_for_profile_overrides(hwnd: HWND, profile: &Profile, pid: DWORD) {
     let profile_clone = profile.clone();
     let hwnd_as_int = hwnd as usize;
+    let generation = register_watcher(pid);
 
     thread::Builder::new()
         .name("Profile override watcher".to_string())
         .spawn(move || {
-            let mut poll_counter = 0;
-            let mut poll_extended_counter = 0;
-
-            let poll_itterations = 10;
-            let poll_extended_itterations = 5;
+            // 10 checks one second apart, then 5 checks five seconds apart. After that the
+            // window is left alone until the display layout changes, which starts a new round.
+            let burst_polls: u32 = 10;
+            let total_polls: u32 = burst_polls + 5;
 
             let hwnd_clone = hwnd_as_int as HWND;
+            let mut polls: u32 = 0;
+            let mut layout = current_display_layout();
 
             loop {
-                if !is_process_running(pid) {
+                if !is_process_running(pid) || unsafe { IsWindow(hwnd_clone) } == 0 {
                     debug_log!(
-                        "[{}] Process no longer running, exiting override polling",
+                        "[{}] Process or window is gone, exiting override polling",
                         profile_clone.name
                     );
                     break;
                 }
 
-                // check pos
-                let matches_profile = validate_window_rect(hwnd_clone, &profile_clone);
-                poll_counter += 1;
-
-                if poll_counter <= poll_itterations {
+                if !is_current_watcher(pid, generation) {
                     debug_log!(
-                        "[{}] Polling for profile overrides: [{}/10 x 1second]",
+                        "[{}] A newer profile was applied to PID {}, exiting override polling",
                         profile_clone.name,
-                        poll_counter
+                        pid
                     );
-                } else {
-                    poll_extended_counter += 1;
-                    debug_log!(
-                        "[{}] Polling for profile overrides: [{}/5 x 5seconds]",
-                        profile_clone.name,
-                        poll_extended_counter
-                    );
+                    break;
                 }
 
-                if !matches_profile {
-                    debug_log!("Window for PID {} was moved or resized.", pid);
-                    debug_window(hwnd_clone);
+                // A display being connected, disconnected or rearranged makes Windows (and
+                // often the game) reposition the window, so check the profile again.
+                let new_layout = current_display_layout();
+                if new_layout != layout {
+                    debug_log!(
+                        "[{}] Display layout changed from {:?} to {:?}, checking the profile again",
+                        profile_clone.name,
+                        layout,
+                        new_layout
+                    );
+                    layout = new_layout;
+                    polls = 0;
+                    // Give Windows and the game a moment to finish reacting to the change
+                    thread::sleep(Duration::from_secs(2));
+                    continue;
+                }
 
-                    let result = move_and_validate_window(hwnd_clone, &profile_clone, pid);
-                    if let Err(error) = result {
-                        debug_log!("Failed to re-apply profile: {:?}", error);
+                if polls < total_polls {
+                    polls += 1;
+                    debug_log!(
+                        "[{}] Polling for profile overrides: [{}/{}]",
+                        profile_clone.name,
+                        polls,
+                        total_polls
+                    );
+
+                    if !validate_window_rect(hwnd_clone, &profile_clone) {
+                        debug_log!("Window for PID {} was moved or resized.", pid);
+                        debug_window(hwnd_clone);
+
+                        let result = move_and_validate_window(hwnd_clone, &profile_clone, pid);
+                        if let Err(error) = result {
+                            debug_log!("Failed to re-apply profile: {:?}", error);
+                        }
+                    }
+
+                    if polls == total_polls {
+                        debug_log!(
+                            "[{}] Done polling for profile overrides, waiting for display changes.",
+                            profile_clone.name
+                        );
                     }
                 }
 
-                if poll_counter < poll_itterations {
+                if polls < burst_polls {
                     thread::sleep(Duration::from_secs(1));
+                } else if polls < total_polls {
+                    thread::sleep(Duration::from_secs(5));
                 } else {
-                    if poll_extended_counter < poll_extended_itterations {
-                        thread::sleep(Duration::from_secs(5));
-                    } else {
-                        // we are done polling
-                        debug_log!("Done polling for profile overrides.");
-                        break;
-                    }
+                    thread::sleep(Duration::from_secs(2));
                 }
             }
+
+            unregister_watcher(pid, generation);
         })
         .unwrap();
 }
