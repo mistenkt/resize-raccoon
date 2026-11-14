@@ -1,6 +1,8 @@
 # Changelog
 
-## [Unreleased]
+## [1.7.1] - 2026-11-14
+#### Changed
+- Fork build: the auto updater is turned off. It points at the upstream release feed, and fork builds are not signed with the upstream key.
 #### Fixed
 - Windows are now resized without giving the target a chance to veto or clamp the new size (`SetWindowPos` with `SWP_NOSENDCHANGING`), falling back to the old `MoveWindow` call if that does not stick.
 - A profile is checked and re-applied when a display is connected, disconnected or rearranged while the target is running (for example a fourth monitor used as a dash). Previously the window was only watched for the first ~35 seconds.

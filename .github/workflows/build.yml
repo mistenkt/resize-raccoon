@@ -1,0 +1,36 @@
+name: Build
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      # Cargo.lock pins time 0.3.30, which does not compile on Rust 1.80 or newer.
+      - name: Install Rust 1.77.2
+        run: |
+          rustup toolchain install 1.77.2 --profile minimal
+          rustup default 1.77.2
+
+      - name: Install frontend dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build installer
+        run: yarn tauri build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: resize-raccoon-windows
+          path: |
+            src-tauri/target/release/bundle/msi/*.msi
+            src-tauri/target/release/*.exe
+          if-no-files-found: error

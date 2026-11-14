@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "Resize Raccoon",
-    "version": "1.7.0"
+    "version": "1.7.1"
   },
   "tauri": {
     "allowlist": {
@@ -66,7 +66,7 @@
       "iconAsTemplate": true
     },
     "updater": {
-      "active": true,
+      "active": false,
       "dialog": true,
       "endpoints": [
         "https://raw.githubusercontent.com/mistenkt/resize-raccoon/master/latest_version.json"
